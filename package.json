@@ -1,0 +1,37 @@
+{
+  "name": "ultimate-math-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ultimate Math Engine - real server data, database autosave, high-accuracy calculator suite.",
+  "scripts": {
+    "dev": "concurrently \"vite --host 0.0.0.0\" \"npm run dev:server\"",
+    "dev:server": "tsc -p tsconfig.server.json --watch --preserveWatchOutput",
+    "build": "npm run build:client && npm run build:server && node scripts/copy-schema.mjs",
+    "build:client": "vite build",
+    "build:server": "tsc -p tsconfig.server.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.server.json",
+    "server": "node dist-server/index.js",
+    "apply:schema": "node dist-server/applySchema.js"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest",
+    "typescript": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "express": "latest",
+    "pg": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "decimal.js": "latest"
+  },
+  "devDependencies": {
+    "@types/cors": "latest",
+    "@types/express": "latest",
+    "@types/node": "latest",
+    "@types/pg": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "concurrently": "latest"
+  }
+}
