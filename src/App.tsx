@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { api, ApiResult, GameRate, HistoryItem } from './api/client';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { api, ApiResult, GameRate, HistoryItem, MusicRequest, SiteSettings } from './api/client';
 
 type Tab = 'basic' | 'scientific' | 'solver' | 'finance' | 'unit' | 'game' | 'settings';
 type Lang = 'vi' | 'en' | 'zh';
@@ -31,17 +31,16 @@ const translations = {
     realData: 'Dữ Liệu Thật', serverAutosave: 'Tự Lưu Server', dbOnly: 'Chỉ Dùng CSDL', accuracy: '≥99%',
     language: 'Ngôn Ngữ', vietnamese: 'Tiếng Việt', english: 'English', chinese: '中文',
     connectionTitle: 'Kết nối dữ liệu thật',
-    connectionHint: 'F5 không làm mất dữ liệu trong CSDL. Hãy lưu User ID và Session ID để tải lại phiên làm việc.',
     createUser: 'Tạo user thật', loadSession: 'Tải phiên từ CSDL', userId: 'User ID', sessionId: 'Session ID',
     userPlaceholder: 'Nhập User ID...', sessionPlaceholder: 'Nhập Session ID...',
     dbReady: 'Cơ sở dữ liệu đã cấu hình. Sẵn sàng tự động lưu thật.',
     dbMissing: 'Thiếu DATABASE_URL. API DB sẽ báo 503 cho đến khi cấu hình Neon/PostgreSQL.',
-    initialStatus: 'Chưa kết nối database. Tạo user thật trước để lưu dữ liệu.',
+    initialStatus: 'Sẵn sàng kết nối dữ liệu thật.',
     guestCreated: 'Đã tạo user/session thật trong cơ sở dữ liệu. Tự lưu đã bật.',
     sessionLoaded: 'Đã tải lại phiên từ cơ sở dữ liệu.',
     autosaved: 'Đã tự lưu server lúc',
     needSession: 'Cần User ID + Session ID thật trước khi tính/lưu.',
-    tabs: { basic: 'Cơ Bản', scientific: 'Khoa Học', solver: 'Giải PT', finance: 'Tài Chính', unit: 'Đổi Đơn Vị', game: 'Quy Đổi Game', settings: 'Cài Đặt Giao Diện' },
+    tabs: { basic: 'Cơ Bản', scientific: 'Khoa Học', solver: 'Giải PT', finance: 'Tài Chính', unit: 'Đổi Đơn Vị', game: 'Quy Đổi Game', settings: 'Cài Đặt' },
     basicTitle: 'Máy tính cơ bản', operation: 'Phép tính', firstNumber: 'Số thứ nhất', secondNumber: 'Số thứ hai',
     firstPlaceholder: 'Nhập số thứ nhất...', secondPlaceholder: 'Nhập số thứ hai...', calculate: 'Tính kết quả',
     add: 'Cộng', subtract: 'Trừ', multiply: 'Nhân', divide: 'Chia', percentOf: '% của', power: 'Lũy thừa', sqrt: 'Căn bậc hai',
@@ -52,20 +51,22 @@ const translations = {
     unitTitle: 'Chuyển đổi đơn vị', category: 'Nhóm đơn vị', from: 'Từ', to: 'Sang', convert: 'Đổi',
     gameTitle: 'Quy đổi game', gameHint: 'Không có tỷ giá ảo. Muốn tính chuẩn thì nhập gói nạp/thẻ thật vào CSDL trước.',
     amountVnd: 'Số tiền VND', addRealRate: 'Thêm tỷ giá thật', saveRate: 'Lưu tỷ giá vào CSDL', loadRates: 'Tải tỷ giá', verifiedNote: 'Ghi chú xác minh', source: 'Nguồn', currency: 'Số lượng', bonus: 'Thưởng thêm',
-    settingsTitle: 'Cài đặt giao diện VIP', saveSettings: 'Lưu cài đặt vào CSDL', theme: 'Giao diện',
-    result: 'Kết quả', noResult: 'Chưa có kết quả.', refreshHistory: 'Làm mới lịch sử', historyDb: 'Lịch sử CSDL', footer: 'Dữ liệu thật qua API & CSDL • Tự động lưu phía server • Độ chính xác mục tiêu ≥ 99%'
+    settingsTitle: 'Cài đặt VIP', saveSettings: 'Lưu cài đặt vào CSDL', theme: 'Giao diện',
+    result: 'Kết quả', noResult: 'Chưa có kết quả.', refreshHistory: 'Làm mới lịch sử', historyDb: 'Lịch sử CSDL', footer: 'Dữ liệu thật qua API & CSDL • Tự động lưu phía server • Độ chính xác mục tiêu ≥ 99%',
+    musicNow: 'Nhạc nền', playMusic: 'Bật nhạc', pauseMusic: 'Tắt nhạc', volumeDown: 'Giảm âm', volumeUp: 'Tăng âm',
+    adminLock: 'Khóa chỉnh web', adminKey: 'Key quản trị', unlockHint: 'Chỉ người có key mới đổi được ảnh nền và nhạc chung.', unlock: 'Mở khóa', saveSite: 'Lưu ảnh/nhạc web', backgroundUrl: 'Link ảnh nền', musicUrl: 'Link nhạc', musicTitle: 'Tên nhạc', enableMusic: 'Phát nhạc cho web',
+    musicRequestTitle: 'Yêu cầu đổi nhạc', requesterName: 'Tên người yêu cầu', songTitle: 'Tên bài nhạc', note: 'Ghi chú', sendRequest: 'Gửi yêu cầu đổi nhạc', approvalBoard: 'Bảng phê duyệt yêu cầu nhạc', loadRequests: 'Tải yêu cầu', approve: 'Duyệt', reject: 'Từ chối', applyMusic: 'Duyệt & đổi nhạc luôn', noRequests: 'Chưa có yêu cầu.'
   },
   en: {
     appBadge: 'REAL-DATA CALCULATION SYSTEM',
     subtitle: 'V1 + V2 + V3. Real data through API and database, server-side autosave, target accuracy ≥ 99%.',
     realData: 'Real Data', serverAutosave: 'Server Autosave', dbOnly: 'DB Only', accuracy: '≥99%',
     language: 'Language', vietnamese: 'Tiếng Việt', english: 'English', chinese: '中文',
-    connectionTitle: 'Real data connection', connectionHint: 'Refresh does not delete database data. Save your User ID and Session ID to reload your session.',
-    createUser: 'Create real user', loadSession: 'Load session from DB', userId: 'User ID', sessionId: 'Session ID',
+    connectionTitle: 'Real data connection', createUser: 'Create real user', loadSession: 'Load session from DB', userId: 'User ID', sessionId: 'Session ID',
     userPlaceholder: 'Enter User ID...', sessionPlaceholder: 'Enter Session ID...',
     dbReady: 'Database configured. Real autosave is ready.', dbMissing: 'DATABASE_URL is missing. DB APIs will return 503 until Neon/PostgreSQL is configured.',
-    initialStatus: 'Database not connected yet. Create a real user before saving data.', guestCreated: 'Created a real user/session in the database. Autosave is enabled.', sessionLoaded: 'Session loaded from database.', autosaved: 'Server autosaved at', needSession: 'A real User ID + Session ID is required before calculating/saving.',
-    tabs: { basic: 'Basic', scientific: 'Scientific', solver: 'Equation Solver', finance: 'Finance', unit: 'Unit Converter', game: 'Game Converter', settings: 'VIP UI Settings' },
+    initialStatus: 'Ready for real data connection.', guestCreated: 'Created a real user/session in the database. Autosave is enabled.', sessionLoaded: 'Session loaded from database.', autosaved: 'Server autosaved at', needSession: 'A real User ID + Session ID is required before calculating/saving.',
+    tabs: { basic: 'Basic', scientific: 'Scientific', solver: 'Equation Solver', finance: 'Finance', unit: 'Unit Converter', game: 'Game Converter', settings: 'Settings' },
     basicTitle: 'Basic calculator', operation: 'Operation', firstNumber: 'First number', secondNumber: 'Second number', firstPlaceholder: 'Enter first number...', secondPlaceholder: 'Enter second number...', calculate: 'Calculate',
     add: 'Add', subtract: 'Subtract', multiply: 'Multiply', divide: 'Divide', percentOf: 'Percent of', power: 'Power', sqrt: 'Square root',
     scientificTitle: 'Scientific calculator', angleMode: 'Angle mode', degree: 'Degree', radian: 'Radian', value: 'Value',
@@ -73,20 +74,22 @@ const translations = {
     financeTitle: 'Money / life tools', discount: 'Discount', profitLoss: 'Profit / loss', simpleInterest: 'Simple interest', compoundInterest: 'Compound interest', installment: 'Installment',
     unitTitle: 'Unit converter', category: 'Category', from: 'From', to: 'To', convert: 'Convert',
     gameTitle: 'Game converter', gameHint: 'No fake rates. Add verified real card/top-up packages to the database first.', amountVnd: 'Amount VND', addRealRate: 'Add real rate', saveRate: 'Save rate to DB', loadRates: 'Load rates', verifiedNote: 'Verification note', source: 'Source', currency: 'Currency amount', bonus: 'Bonus',
-    settingsTitle: 'VIP UI settings', saveSettings: 'Save settings to DB', theme: 'Theme',
-    result: 'Result', noResult: 'No result yet.', refreshHistory: 'Refresh history', historyDb: 'DB history', footer: 'Real data via API & DB • Server-side autosave • Target accuracy ≥ 99%'
+    settingsTitle: 'VIP settings', saveSettings: 'Save settings to DB', theme: 'Theme',
+    result: 'Result', noResult: 'No result yet.', refreshHistory: 'Refresh history', historyDb: 'DB history', footer: 'Real data via API & DB • Server-side autosave • Target accuracy ≥ 99%',
+    musicNow: 'Background music', playMusic: 'Play music', pauseMusic: 'Pause music', volumeDown: 'Volume down', volumeUp: 'Volume up',
+    adminLock: 'Web edit lock', adminKey: 'Admin key', unlockHint: 'Only the key holder can change the global background and music.', unlock: 'Unlock', saveSite: 'Save site media', backgroundUrl: 'Background image URL', musicUrl: 'Music URL', musicTitle: 'Music title', enableMusic: 'Enable site music',
+    musicRequestTitle: 'Request music change', requesterName: 'Requester name', songTitle: 'Song title', note: 'Note', sendRequest: 'Send music request', approvalBoard: 'Music request approval board', loadRequests: 'Load requests', approve: 'Approve', reject: 'Reject', applyMusic: 'Approve & apply', noRequests: 'No requests yet.'
   },
   zh: {
     appBadge: '真实数据计算系统',
     subtitle: 'V1 + V2 + V3。数据通过 API 与数据库，服务器端自动保存，目标准确率 ≥ 99%。',
     realData: '真实数据', serverAutosave: '服务器自动保存', dbOnly: '仅使用数据库', accuracy: '≥99%',
     language: '语言', vietnamese: 'Tiếng Việt', english: 'English', chinese: '中文',
-    connectionTitle: '真实数据连接', connectionHint: '刷新不会删除数据库数据。请保存 User ID 和 Session ID 以重新加载会话。',
-    createUser: '创建真实用户', loadSession: '从数据库加载会话', userId: '用户 ID', sessionId: '会话 ID',
+    connectionTitle: '真实数据连接', createUser: '创建真实用户', loadSession: '从数据库加载会话', userId: '用户 ID', sessionId: '会话 ID',
     userPlaceholder: '输入 User ID...', sessionPlaceholder: '输入 Session ID...',
     dbReady: '数据库已配置。真实自动保存已就绪。', dbMissing: '缺少 DATABASE_URL。配置 Neon/PostgreSQL 前，数据库 API 将返回 503。',
-    initialStatus: '尚未连接数据库。请先创建真实用户再保存数据。', guestCreated: '已在数据库创建真实用户/会话。自动保存已开启。', sessionLoaded: '已从数据库加载会话。', autosaved: '服务器自动保存于', needSession: '计算/保存前需要真实 User ID + Session ID。',
-    tabs: { basic: '基础', scientific: '科学', solver: '方程求解', finance: '财务', unit: '单位转换', game: '游戏换算', settings: '界面设置' },
+    initialStatus: '准备连接真实数据。', guestCreated: '已在数据库创建真实用户/会话。自动保存已开启。', sessionLoaded: '已从数据库加载会话。', autosaved: '服务器自动保存于', needSession: '计算/保存前需要真实 User ID + Session ID。',
+    tabs: { basic: '基础', scientific: '科学', solver: '方程求解', finance: '财务', unit: '单位转换', game: '游戏换算', settings: '设置' },
     basicTitle: '基础计算器', operation: '运算', firstNumber: '第一个数', secondNumber: '第二个数', firstPlaceholder: '输入第一个数...', secondPlaceholder: '输入第二个数...', calculate: '计算结果',
     add: '加', subtract: '减', multiply: '乘', divide: '除', percentOf: '百分比', power: '幂', sqrt: '平方根',
     scientificTitle: '科学计算器', angleMode: '角度模式', degree: '角度', radian: '弧度', value: '数值',
@@ -94,8 +97,11 @@ const translations = {
     financeTitle: '金钱 / 生活工具', discount: '折扣', profitLoss: '盈亏', simpleInterest: '单利', compoundInterest: '复利', installment: '分期付款',
     unitTitle: '单位转换', category: '类别', from: '从', to: '到', convert: '转换',
     gameTitle: '游戏换算', gameHint: '不使用虚假汇率。请先把已验证的真实充值/卡券套餐加入数据库。', amountVnd: '金额 VND', addRealRate: '添加真实汇率', saveRate: '保存汇率到数据库', loadRates: '加载汇率', verifiedNote: '验证备注', source: '来源', currency: '货币数量', bonus: '额外奖励',
-    settingsTitle: 'VIP 界面设置', saveSettings: '保存设置到数据库', theme: '主题',
-    result: '结果', noResult: '暂无结果。', refreshHistory: '刷新历史', historyDb: '数据库历史', footer: '真实数据经由 API 与数据库 • 服务器端自动保存 • 目标准确率 ≥ 99%'
+    settingsTitle: 'VIP 设置', saveSettings: '保存设置到数据库', theme: '主题',
+    result: '结果', noResult: '暂无结果。', refreshHistory: '刷新历史', historyDb: '数据库历史', footer: '真实数据经由 API 与数据库 • 服务器端自动保存 • 目标准确率 ≥ 99%',
+    musicNow: '背景音乐', playMusic: '播放音乐', pauseMusic: '暂停音乐', volumeDown: '降低音量', volumeUp: '提高音量',
+    adminLock: '网站编辑锁', adminKey: '管理密钥', unlockHint: '只有持有密钥的人可以修改全站背景和音乐。', unlock: '解锁', saveSite: '保存网站媒体', backgroundUrl: '背景图链接', musicUrl: '音乐链接', musicTitle: '音乐标题', enableMusic: '启用网站音乐',
+    musicRequestTitle: '申请更换音乐', requesterName: '申请人', songTitle: '歌曲名', note: '备注', sendRequest: '提交音乐申请', approvalBoard: '音乐申请审核表', loadRequests: '加载申请', approve: '批准', reject: '拒绝', applyMusic: '批准并应用', noRequests: '暂无申请。'
   }
 } as const;
 
@@ -114,6 +120,16 @@ const gamePairs = [
   { gameCode: 'GENSHIN', currencyCode: 'NT', label: 'Genshin Impact — NT' }
 ];
 
+const defaultSiteSettings: SiteSettings = {
+  id: 'global',
+  background_url: '/wolf-bg.jpg',
+  music_url: '',
+  music_title: '',
+  music_enabled: false,
+  volume: '0.45',
+  updated_at: ''
+};
+
 function safeDraft(value: unknown): DraftState {
   if (!value || typeof value !== 'object') return defaultDraft;
   const incoming = value as Partial<DraftState>;
@@ -130,7 +146,12 @@ function safeDraft(value: unknown): DraftState {
   };
 }
 
+function cssUrl(url: string): string {
+  return `url("${url.replace(/"/g, '%22')}")`;
+}
+
 export default function App() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [userId, setUserId] = useState('');
   const [sessionId, setSessionId] = useState('');
   const [activeTab, setActiveTab] = useState<Tab>('basic');
@@ -138,13 +159,20 @@ export default function App() {
   const [result, setResult] = useState<ApiResult | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [rates, setRates] = useState<GameRate[]>([]);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(defaultSiteSettings);
+  const [musicRequests, setMusicRequests] = useState<MusicRequest[]>([]);
+  const [musicPlaying, setMusicPlaying] = useState(false);
   const [status, setStatus] = useState<string>(translations.vi.initialStatus);
   const [error, setError] = useState('');
   const [rateForm, setRateForm] = useState({ gameCode: 'FREE_FIRE', currencyCode: 'KC', amountVnd: '100000', currencyAmount: '', bonusAmount: '0', sourceName: 'Manual verified rate', note: '' });
+  const [adminKey, setAdminKey] = useState('');
+  const [siteForm, setSiteForm] = useState({ backgroundUrl: '/wolf-bg.jpg', musicUrl: '', musicTitle: '', musicEnabled: false, volume: '0.45' });
+  const [requestForm, setRequestForm] = useState({ requesterName: '', songTitle: '', musicUrl: '', note: '' });
 
   const lang = draft.settings.language;
   const tr = translations[lang];
   const canSave = Boolean(userId && sessionId);
+  const volume = Math.max(0, Math.min(1, Number(siteSettings.volume || siteForm.volume || 0.45)));
 
   const tabs: Array<{ id: Tab; label: string; icon: string }> = [
     { id: 'basic', label: tr.tabs.basic, icon: '▣' },
@@ -160,7 +188,18 @@ export default function App() {
     api.health()
       .then((health) => setStatus(health.databaseConfigured ? translations[lang].dbReady : translations[lang].dbMissing))
       .catch((err: Error) => setError(err.message));
-    // Only reword status when the selected language changes.
+    api.getSiteSettings()
+      .then((data) => {
+        setSiteSettings(data.settings);
+        setSiteForm({
+          backgroundUrl: data.settings.background_url || '/wolf-bg.jpg',
+          musicUrl: data.settings.music_url || '',
+          musicTitle: data.settings.music_title || '',
+          musicEnabled: Boolean(data.settings.music_enabled),
+          volume: data.settings.volume || '0.45'
+        });
+      })
+      .catch((err: Error) => setError(err.message));
   }, [lang]);
 
   useEffect(() => {
@@ -173,7 +212,12 @@ export default function App() {
     return () => window.clearTimeout(handle);
   }, [activeTab, draft, userId, sessionId, canSave, lang]);
 
-  const selectedUnitOptions = useMemo(() => unitMap[draft.unit.category] ?? unitMap.length, [draft.unit.category]);
+  useEffect(() => {
+    if (!audioRef.current) return;
+    audioRef.current.volume = volume;
+  }, [volume, siteSettings.music_url]);
+
+  const selectedUnitOptions = useMemo(() => unitMap[draft.unit.category] ?? ['m'], [draft.unit.category]);
 
   async function refreshHistory() {
     if (!userId) return;
@@ -259,6 +303,44 @@ export default function App() {
     setStatus(lang === 'vi' ? 'Đã lưu cài đặt UI vào cơ sở dữ liệu.' : lang === 'en' ? 'Saved UI settings to the database.' : '已将界面设置保存到数据库。');
   }
 
+  async function saveSiteSettings() {
+    const data = await api.updateSiteSettings({
+      adminKey,
+      backgroundUrl: siteForm.backgroundUrl,
+      musicUrl: siteForm.musicUrl,
+      musicTitle: siteForm.musicTitle,
+      musicEnabled: siteForm.musicEnabled,
+      volume: Number(siteForm.volume)
+    });
+    setSiteSettings(data.settings);
+    setStatus(lang === 'vi' ? 'Đã cập nhật ảnh nền/nhạc web.' : lang === 'en' ? 'Updated site background/music.' : '已更新网站背景/音乐。');
+  }
+
+  async function sendMusicRequest() {
+    const data = await api.createMusicRequest(requestForm);
+    setRequestForm({ requesterName: '', songTitle: '', musicUrl: '', note: '' });
+    setStatus(lang === 'vi' ? `Đã gửi yêu cầu đổi nhạc: ${data.request.song_title}` : lang === 'en' ? `Music request sent: ${data.request.song_title}` : `已提交音乐申请：${data.request.song_title}`);
+  }
+
+  async function loadMusicRequests() {
+    const data = await api.getMusicRequests(adminKey, 'all');
+    setMusicRequests(data.requests);
+  }
+
+  async function reviewMusicRequest(id: string, action: 'approved' | 'rejected', applyToSite = false) {
+    await api.reviewMusicRequest(id, { adminKey, action, applyToSite });
+    await loadMusicRequests();
+    const settings = await api.getSiteSettings();
+    setSiteSettings(settings.settings);
+    setSiteForm({
+      backgroundUrl: settings.settings.background_url || '/wolf-bg.jpg',
+      musicUrl: settings.settings.music_url || '',
+      musicTitle: settings.settings.music_title || '',
+      musicEnabled: Boolean(settings.settings.music_enabled),
+      volume: settings.settings.volume || '0.45'
+    });
+  }
+
   async function guarded(action: () => Promise<void>) {
     try {
       setError('');
@@ -269,12 +351,43 @@ export default function App() {
     }
   }
 
+  async function unguarded(action: () => Promise<void>) {
+    try {
+      setError('');
+      await action();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    }
+  }
+
   function setLanguage(language: Lang) {
     setDraft({ ...draft, settings: { ...draft.settings, language } });
   }
 
+  function changeVolume(delta: number) {
+    const next = Math.max(0, Math.min(1, Number(siteForm.volume || siteSettings.volume || 0.45) + delta));
+    setSiteForm({ ...siteForm, volume: next.toFixed(2) });
+    setSiteSettings({ ...siteSettings, volume: next.toFixed(2) });
+  }
+
+  async function toggleMusic() {
+    if (!audioRef.current || !siteSettings.music_url) return;
+    if (audioRef.current.paused) {
+      await audioRef.current.play();
+      setMusicPlaying(true);
+    } else {
+      audioRef.current.pause();
+      setMusicPlaying(false);
+    }
+  }
+
   return (
-    <main className={`appShell lang-${lang}`}>
+    <main className={`appShell lang-${lang}`} style={{ '--ume-bg-image': cssUrl(siteSettings.background_url || '/wolf-bg.jpg') } as React.CSSProperties}>
+      <div className="dynamicBackground" />
+      {siteSettings.music_url && (
+        <audio ref={audioRef} src={siteSettings.music_url} loop preload="none" />
+      )}
+
       <section className="hero panel neonPanel">
         <div className="logoMark">Σ</div>
         <div className="heroCopy">
@@ -288,20 +401,24 @@ export default function App() {
             <span>◎ {tr.accuracy}</span>
           </div>
         </div>
-        <div className="languageBox">
-          <button className="languageButton">🌐 {tr.language} ▾</button>
-          <div className="languageMenu">
-            <button className={lang === 'vi' ? 'selected' : ''} onClick={() => setLanguage('vi')}>🇻🇳 {tr.vietnamese}</button>
-            <button className={lang === 'en' ? 'selected' : ''} onClick={() => setLanguage('en')}>🇺🇸 {tr.english}</button>
-            <button className={lang === 'zh' ? 'selected' : ''} onClick={() => setLanguage('zh')}>🇨🇳 {tr.chinese}</button>
-          </div>
+        <div className="topTools">
+          <label className="languageSelectLabel">🌐 {tr.language}
+            <select className="languageSelect" value={lang} onChange={(e) => setLanguage(e.target.value as Lang)}>
+              <option value="vi">🇻🇳 {tr.vietnamese}</option>
+              <option value="en">🇺🇸 {tr.english}</option>
+              <option value="zh">🇨🇳 {tr.chinese}</option>
+            </select>
+          </label>
+          <button className="cyanButton musicToggle" onClick={() => unguarded(toggleMusic)} disabled={!siteSettings.music_url}>
+            {musicPlaying ? `⏸ ${tr.pauseMusic}` : `▶ ${tr.playMusic}`}
+          </button>
+          <div className="musicMeta">{tr.musicNow}: {siteSettings.music_title || '—'}</div>
         </div>
       </section>
 
-      <section className="panel neonPanel connectionGrid">
+      <section className="panel neonPanel connectionGrid cleanConnection">
         <div className="connectionIntro">
           <h2>🔗 {tr.connectionTitle}</h2>
-          <p className="subtle">{tr.connectionHint}</p>
         </div>
         <button onClick={() => createGuest().catch((err: Error) => setError(err.message))} className="primary hotPink">👤+ {tr.createUser}</button>
         <label>{tr.userId}<input value={userId} onChange={(e) => setUserId(e.target.value)} placeholder={tr.userPlaceholder} /></label>
@@ -437,13 +554,68 @@ export default function App() {
           {activeTab === 'settings' && (
             <div className="formGrid">
               <h2>⚙ {tr.settingsTitle}</h2>
-              <label>{tr.theme}<select value={draft.settings.theme} onChange={(e) => setDraft({ ...draft, settings: { ...draft.settings, theme: e.target.value } })}>
-                <option value="dark-neon">Dark Neon</option><option value="glass-vip">Glass VIP</option><option value="midnight">Midnight</option>
-              </select></label>
-              <label>{tr.language}<select value={lang} onChange={(e) => setLanguage(e.target.value as Lang)}>
-                <option value="vi">Tiếng Việt</option><option value="en">English</option><option value="zh">中文</option>
-              </select></label>
+              <div className="twoColumns">
+                <label>{tr.theme}<select value={draft.settings.theme} onChange={(e) => setDraft({ ...draft, settings: { ...draft.settings, theme: e.target.value } })}>
+                  <option value="dark-neon">Dark Neon</option><option value="glass-vip">Glass VIP</option><option value="midnight">Midnight</option>
+                </select></label>
+                <label>{tr.language}<select value={lang} onChange={(e) => setLanguage(e.target.value as Lang)}>
+                  <option value="vi">Tiếng Việt</option><option value="en">English</option><option value="zh">中文</option>
+                </select></label>
+              </div>
               <button className="primary gradientAction" onClick={() => guarded(saveSettings)}>⚡ {tr.saveSettings}</button>
+
+              <div className="mediaPanel">
+                <h3>🎵 {tr.musicNow}</h3>
+                <div className="musicControls">
+                  <button className="cyanButton" onClick={() => unguarded(toggleMusic)} disabled={!siteSettings.music_url}>{musicPlaying ? tr.pauseMusic : tr.playMusic}</button>
+                  <button onClick={() => changeVolume(-0.1)}>− {tr.volumeDown}</button>
+                  <input type="range" min="0" max="1" step="0.01" value={siteForm.volume} onChange={(e) => { setSiteForm({ ...siteForm, volume: e.target.value }); setSiteSettings({ ...siteSettings, volume: e.target.value }); }} />
+                  <button onClick={() => changeVolume(0.1)}>+ {tr.volumeUp}</button>
+                </div>
+              </div>
+
+              <div className="mediaPanel adminPanel">
+                <h3>🔐 {tr.adminLock}</h3>
+                <p className="subtle">{tr.unlockHint}</p>
+                <label>{tr.adminKey}<input type="password" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} placeholder="••••••••" /></label>
+                <div className="twoColumns">
+                  <label>{tr.backgroundUrl}<input value={siteForm.backgroundUrl} onChange={(e) => setSiteForm({ ...siteForm, backgroundUrl: e.target.value })} placeholder="/wolf-bg.jpg hoặc https://..." /></label>
+                  <label>{tr.musicTitle}<input value={siteForm.musicTitle} onChange={(e) => setSiteForm({ ...siteForm, musicTitle: e.target.value })} /></label>
+                </div>
+                <label>{tr.musicUrl}<input value={siteForm.musicUrl} onChange={(e) => setSiteForm({ ...siteForm, musicUrl: e.target.value })} placeholder="https://...mp3" /></label>
+                <label className="checkRow"><input type="checkbox" checked={siteForm.musicEnabled} onChange={(e) => setSiteForm({ ...siteForm, musicEnabled: e.target.checked })} /> {tr.enableMusic}</label>
+                <button className="primary hotPink" onClick={() => unguarded(saveSiteSettings)}>💾 {tr.saveSite}</button>
+              </div>
+
+              <div className="mediaPanel requestPanel">
+                <h3>🎧 {tr.musicRequestTitle}</h3>
+                <div className="twoColumns">
+                  <label>{tr.requesterName}<input value={requestForm.requesterName} onChange={(e) => setRequestForm({ ...requestForm, requesterName: e.target.value })} /></label>
+                  <label>{tr.songTitle}<input value={requestForm.songTitle} onChange={(e) => setRequestForm({ ...requestForm, songTitle: e.target.value })} /></label>
+                </div>
+                <label>{tr.musicUrl}<input value={requestForm.musicUrl} onChange={(e) => setRequestForm({ ...requestForm, musicUrl: e.target.value })} placeholder="https://...mp3" /></label>
+                <label>{tr.note}<input value={requestForm.note} onChange={(e) => setRequestForm({ ...requestForm, note: e.target.value })} /></label>
+                <button className="cyanButton" onClick={() => unguarded(sendMusicRequest)}>✉ {tr.sendRequest}</button>
+              </div>
+
+              <div className="mediaPanel approvalPanel">
+                <h3>✅ {tr.approvalBoard}</h3>
+                <button className="cyanButton" onClick={() => unguarded(loadMusicRequests)}>↻ {tr.loadRequests}</button>
+                <div className="approvalTable">
+                  {musicRequests.length === 0 && <p className="subtle">{tr.noRequests}</p>}
+                  {musicRequests.map((request) => (
+                    <div className={`approvalRow ${request.status}`} key={request.id}>
+                      <div><strong>{request.song_title}</strong><span>{request.requester_name} • {request.status}</span></div>
+                      <a href={request.music_url} target="_blank" rel="noreferrer">Link</a>
+                      <div className="approvalActions">
+                        <button onClick={() => unguarded(() => reviewMusicRequest(request.id, 'approved', false))}>{tr.approve}</button>
+                        <button className="hotPink" onClick={() => unguarded(() => reviewMusicRequest(request.id, 'approved', true))}>{tr.applyMusic}</button>
+                        <button onClick={() => unguarded(() => reviewMusicRequest(request.id, 'rejected', false))}>{tr.reject}</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </div>
