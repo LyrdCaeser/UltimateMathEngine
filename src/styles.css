@@ -620,3 +620,50 @@ footer {
     max-height: 92vh;
   }
 }
+
+/* Platform media link support */
+button:disabled,
+input:disabled,
+select:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.mediaEmbedPanel {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-color: rgba(37, 231, 255, .52);
+}
+
+.mediaEmbedHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: .85rem;
+  color: #dffbff;
+}
+
+.mediaEmbedPanel iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid rgba(37, 231, 255, .42);
+  border-radius: 18px;
+  background: rgba(0, 0, 0, .58);
+  box-shadow: 0 0 28px rgba(37, 231, 255, .14), 0 0 42px rgba(255, 57, 223, .12);
+}
+
+.mediaHint {
+  grid-column: 1 / -1;
+  margin: .2rem 0 0;
+  font-size: .86rem;
+}
+
+.musicMeta {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
