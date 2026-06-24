@@ -4,6 +4,7 @@ import { api, ApiResult, GameRate, HistoryItem, MusicRequest, SiteSettings } fro
 type Tab = 'basic' | 'scientific' | 'solver' | 'finance' | 'unit' | 'game' | 'settings';
 type Lang = 'vi' | 'en' | 'zh';
 type HelpSection = 'guide' | 'policy' | 'qrt' | 'about';
+type MediaKind = 'none' | 'directAudio' | 'youtube' | 'external';
 
 type DraftState = {
   basic: { a: string; b: string; operation: string };
@@ -55,8 +56,8 @@ const translations = {
     amountVnd: 'Số tiền VND', addRealRate: 'Thêm tỷ giá thật', saveRate: 'Lưu tỷ giá vào CSDL', loadRates: 'Tải tỷ giá', verifiedNote: 'Ghi chú xác minh', source: 'Nguồn', currency: 'Số lượng', bonus: 'Thưởng thêm',
     settingsTitle: 'Cài đặt VIP', saveSettings: 'Lưu cài đặt vào CSDL', theme: 'Giao diện',
     result: 'Kết quả', noResult: 'Chưa có kết quả.', refreshHistory: 'Làm mới lịch sử', historyDb: 'Lịch sử CSDL', footer: 'Ultimate Math Engine • Công cụ tính toán, quy đổi và quản lý phiên sử dụng.',
-    musicNow: 'Nhạc nền', playMusic: 'Bật nhạc', pauseMusic: 'Tắt nhạc', volumeDown: 'Giảm âm', volumeUp: 'Tăng âm',
-    adminLock: 'Khóa chỉnh web', adminKey: 'Key quản trị', unlockHint: 'Chỉ người có key mới đổi được ảnh nền và nhạc chung.', unlock: 'Mở khóa', saveSite: 'Lưu ảnh/nhạc web', backgroundUrl: 'Link ảnh nền', musicUrl: 'Link nhạc', musicTitle: 'Tên nhạc', enableMusic: 'Phát nhạc cho web',
+    musicNow: 'Nhạc / video', playMusic: 'Mở link nhạc', pauseMusic: 'Ẩn / tắt', volumeDown: 'Giảm âm', volumeUp: 'Tăng âm',
+    adminLock: 'Khóa chỉnh web', adminKey: 'Key quản trị', unlockHint: 'Chỉ người có key mới đổi được ảnh nền và link nhạc/video chung.', unlock: 'Mở khóa', saveSite: 'Lưu ảnh/link nhạc', backgroundUrl: 'Link ảnh nền', musicUrl: 'Link nhạc/video', musicTitle: 'Tên nhạc/video', enableMusic: 'Kích hoạt link nhạc/video',
     musicRequestTitle: 'Yêu cầu đổi nhạc', requesterName: 'Tên người yêu cầu', songTitle: 'Tên bài nhạc', note: 'Ghi chú', sendRequest: 'Gửi yêu cầu đổi nhạc', approvalBoard: 'Bảng phê duyệt yêu cầu nhạc', loadRequests: 'Tải yêu cầu', approve: 'Duyệt', reject: 'Từ chối', applyMusic: 'Duyệt & đổi nhạc luôn', noRequests: 'Chưa có yêu cầu.'
   },
   en: {
@@ -79,8 +80,8 @@ const translations = {
     gameTitle: 'Game converter', gameHint: 'Choose a game, enter an amount, and convert using saved rate rows.', amountVnd: 'Amount VND', addRealRate: 'Add real rate', saveRate: 'Save rate to DB', loadRates: 'Load rates', verifiedNote: 'Verification note', source: 'Source', currency: 'Currency amount', bonus: 'Bonus',
     settingsTitle: 'VIP settings', saveSettings: 'Save settings to DB', theme: 'Theme',
     result: 'Result', noResult: 'No result yet.', refreshHistory: 'Refresh history', historyDb: 'DB history', footer: 'Ultimate Math Engine • Calculator, converter, and session management tool.',
-    musicNow: 'Background music', playMusic: 'Play music', pauseMusic: 'Pause music', volumeDown: 'Volume down', volumeUp: 'Volume up',
-    adminLock: 'Web edit lock', adminKey: 'Admin key', unlockHint: 'Only the key holder can change the global background and music.', unlock: 'Unlock', saveSite: 'Save site media', backgroundUrl: 'Background image URL', musicUrl: 'Music URL', musicTitle: 'Music title', enableMusic: 'Enable site music',
+    musicNow: 'Music / video', playMusic: 'Open media link', pauseMusic: 'Hide / stop', volumeDown: 'Volume down', volumeUp: 'Volume up',
+    adminLock: 'Web edit lock', adminKey: 'Admin key', unlockHint: 'Only the key holder can change the global background and shared music/video link.', unlock: 'Unlock', saveSite: 'Save site media', backgroundUrl: 'Background image URL', musicUrl: 'Music/video URL', musicTitle: 'Music/video title', enableMusic: 'Enable shared media link',
     musicRequestTitle: 'Request music change', requesterName: 'Requester name', songTitle: 'Song title', note: 'Note', sendRequest: 'Send music request', approvalBoard: 'Music request approval board', loadRequests: 'Load requests', approve: 'Approve', reject: 'Reject', applyMusic: 'Approve & apply', noRequests: 'No requests yet.'
   },
   zh: {
@@ -103,8 +104,8 @@ const translations = {
     gameTitle: '游戏换算', gameHint: '选择游戏、输入金额，并使用已保存的汇率进行换算。', amountVnd: '金额 VND', addRealRate: '添加真实汇率', saveRate: '保存汇率到数据库', loadRates: '加载汇率', verifiedNote: '验证备注', source: '来源', currency: '货币数量', bonus: '额外奖励',
     settingsTitle: 'VIP 设置', saveSettings: '保存设置到数据库', theme: '主题',
     result: '结果', noResult: '暂无结果。', refreshHistory: '刷新历史', historyDb: '数据库历史', footer: 'Ultimate Math Engine • 计算、换算与会话管理工具。',
-    musicNow: '背景音乐', playMusic: '播放音乐', pauseMusic: '暂停音乐', volumeDown: '降低音量', volumeUp: '提高音量',
-    adminLock: '网站编辑锁', adminKey: '管理密钥', unlockHint: '只有持有密钥的人可以修改全站背景和音乐。', unlock: '解锁', saveSite: '保存网站媒体', backgroundUrl: '背景图链接', musicUrl: '音乐链接', musicTitle: '音乐标题', enableMusic: '启用网站音乐',
+    musicNow: '音乐 / 视频', playMusic: '打开媒体链接', pauseMusic: '隐藏 / 停止', volumeDown: '降低音量', volumeUp: '提高音量',
+    adminLock: '网站编辑锁', adminKey: '管理密钥', unlockHint: '只有持有密钥的人可以修改全站背景和共享音乐/视频链接。', unlock: '解锁', saveSite: '保存网站媒体', backgroundUrl: '背景图链接', musicUrl: '音乐/视频链接', musicTitle: '音乐/视频标题', enableMusic: '启用共享媒体链接',
     musicRequestTitle: '申请更换音乐', requesterName: '申请人', songTitle: '歌曲名', note: '备注', sendRequest: '提交音乐申请', approvalBoard: '音乐申请审核表', loadRequests: '加载申请', approve: '批准', reject: '拒绝', applyMusic: '批准并应用', noRequests: '暂无申请。'
   }
 } as const;
@@ -279,8 +280,67 @@ function safeDraft(value: unknown): DraftState {
   };
 }
 
+
 function cssUrl(url: string): string {
   return `url("${url.replace(/"/g, '%22')}")`;
+}
+
+function trimUrl(url: string): string {
+  return url.trim();
+}
+
+function getMediaKind(url: string): MediaKind {
+  const value = trimUrl(url).toLowerCase();
+  if (!value) return 'none';
+  if (/\.(mp3|wav|ogg|m4a|aac)(\?|#|$)/i.test(value)) return 'directAudio';
+  if (value.includes('youtube.com') || value.includes('youtu.be') || value.includes('music.youtube.com')) return 'youtube';
+  return 'external';
+}
+
+function getMediaPlatform(url: string): string {
+  const value = trimUrl(url).toLowerCase();
+  if (!value) return '—';
+  if (value.includes('youtube.com') || value.includes('youtu.be') || value.includes('music.youtube.com')) return 'YouTube';
+  if (value.includes('facebook.com') || value.includes('fb.watch')) return 'Facebook';
+  if (value.includes('tiktok.com')) return 'TikTok';
+  if (value.includes('douyin.com')) return 'Douyin';
+  if (/\.(mp3|wav|ogg|m4a|aac)(\?|#|$)/i.test(value)) return 'Audio file';
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return 'External link';
+  }
+}
+
+function getYouTubeEmbedUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, '').replace(/^music\./, '');
+    let id = '';
+
+    if (host === 'youtu.be') {
+      id = parsed.pathname.split('/').filter(Boolean)[0] ?? '';
+    } else if (host.endsWith('youtube.com')) {
+      if (parsed.pathname === '/watch') id = parsed.searchParams.get('v') ?? '';
+      else if (parsed.pathname.startsWith('/shorts/')) id = parsed.pathname.split('/')[2] ?? '';
+      else if (parsed.pathname.startsWith('/embed/')) id = parsed.pathname.split('/')[2] ?? '';
+      else if (parsed.pathname.startsWith('/live/')) id = parsed.pathname.split('/')[2] ?? '';
+    }
+
+    if (!/^[a-zA-Z0-9_-]{6,}$/.test(id)) return '';
+    return `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`;
+  } catch {
+    return '';
+  }
+}
+
+function isHttpUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
 }
 
 export default function App() {
@@ -303,11 +363,18 @@ export default function App() {
   const [requestForm, setRequestForm] = useState({ requesterName: '', songTitle: '', musicUrl: '', note: '' });
   const [helpOpen, setHelpOpen] = useState(false);
   const [helpSection, setHelpSection] = useState<HelpSection>('guide');
+  const [mediaFrameOpen, setMediaFrameOpen] = useState(false);
 
   const lang = draft.settings.language;
   const tr = translations[lang];
   const canSave = Boolean(userId && sessionId);
   const volume = Math.max(0, Math.min(1, Number(siteSettings.volume || siteForm.volume || 0.45)));
+  const mediaUrl = trimUrl(siteSettings.music_url || '');
+  const mediaKind = getMediaKind(mediaUrl);
+  const mediaPlatform = getMediaPlatform(mediaUrl);
+  const youtubeEmbedUrl = mediaKind === 'youtube' ? getYouTubeEmbedUrl(mediaUrl) : '';
+  const mediaButtonLabel = mediaFrameOpen || musicPlaying ? tr.pauseMusic : tr.playMusic;
+  const volumeDisabled = mediaKind !== 'directAudio';
 
   const tabs: Array<{ id: Tab; label: string; icon: string }> = [
     { id: 'basic', label: tr.tabs.basic, icon: '▣' },
@@ -348,9 +415,14 @@ export default function App() {
   }, [activeTab, draft, userId, sessionId, canSave, lang]);
 
   useEffect(() => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || mediaKind !== 'directAudio') return;
     audioRef.current.volume = volume;
-  }, [volume, siteSettings.music_url]);
+  }, [volume, siteSettings.music_url, mediaKind]);
+
+  useEffect(() => {
+    setMediaFrameOpen(false);
+    setMusicPlaying(false);
+  }, [siteSettings.music_url]);
 
   const selectedUnitOptions = useMemo(() => unitMap[draft.unit.category] ?? ['m'], [draft.unit.category]);
 
@@ -506,21 +578,67 @@ export default function App() {
   }
 
   async function toggleMusic() {
-    if (!audioRef.current || !siteSettings.music_url) return;
-    if (audioRef.current.paused) {
-      await audioRef.current.play();
-      setMusicPlaying(true);
+    const url = trimUrl(siteSettings.music_url || '');
+    if (!url) return;
+
+    if (mediaKind === 'directAudio') {
+      if (!audioRef.current) return;
+      if (audioRef.current.paused) {
+        await audioRef.current.play();
+        setMusicPlaying(true);
+      } else {
+        audioRef.current.pause();
+        setMusicPlaying(false);
+      }
+      return;
+    }
+
+    if (mediaKind === 'youtube' && youtubeEmbedUrl) {
+      setMediaFrameOpen((current) => !current);
+      setMusicPlaying((current) => !current);
+      return;
+    }
+
+    if (isHttpUrl(url)) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      setStatus(
+        lang === 'vi'
+          ? `Đã mở link ${mediaPlatform}.`
+          : lang === 'en'
+            ? `Opened ${mediaPlatform} link.`
+            : `已打开 ${mediaPlatform} 链接。`
+      );
     } else {
-      audioRef.current.pause();
-      setMusicPlaying(false);
+      setError(
+        lang === 'vi'
+          ? 'Link nhạc/video không hợp lệ. Hãy dùng link YouTube, Facebook, TikTok, Douyin hoặc link audio trực tiếp.'
+          : lang === 'en'
+            ? 'Invalid media link. Use YouTube, Facebook, TikTok, Douyin, or a direct audio link.'
+            : '媒体链接无效。请使用 YouTube、Facebook、TikTok、Douyin 或直接音频链接。'
+      );
     }
   }
 
   return (
     <main className={`appShell lang-${lang}`} style={{ '--ume-bg-image': cssUrl(siteSettings.background_url || '/wolf-bg.jpg') } as React.CSSProperties}>
       <div className="dynamicBackground" />
-      {siteSettings.music_url && (
-        <audio ref={audioRef} src={siteSettings.music_url} loop preload="none" />
+      {mediaKind === 'directAudio' && siteSettings.music_url && (
+        <audio
+          ref={audioRef}
+          src={siteSettings.music_url}
+          loop
+          preload="none"
+          onError={() => {
+            setMusicPlaying(false);
+            setError(
+              lang === 'vi'
+                ? 'Link audio không hỗ trợ. Hãy dùng .mp3, .ogg, .wav hoặc chuyển sang link YouTube/Facebook/TikTok/Douyin để mở ngoài.'
+                : lang === 'en'
+                  ? 'Unsupported audio link. Use .mp3, .ogg, .wav, or switch to a YouTube/Facebook/TikTok/Douyin link.'
+                  : '音频链接不受支持。请使用 .mp3、.ogg、.wav，或使用 YouTube/Facebook/TikTok/Douyin 链接。'
+            );
+          }}
+        />
       )}
 
       <section className="hero panel neonPanel">
@@ -540,12 +658,27 @@ export default function App() {
               <option value="zh">🇨🇳 {tr.chinese}</option>
             </select>
           </label>
-          <button className="cyanButton musicToggle" onClick={() => unguarded(toggleMusic)} disabled={!siteSettings.music_url}>
-            {musicPlaying ? `⏸ ${tr.pauseMusic}` : `▶ ${tr.playMusic}`}
+          <button className="cyanButton musicToggle" onClick={() => unguarded(toggleMusic)} disabled={!mediaUrl}>
+            {mediaFrameOpen || musicPlaying ? `⏸ ${mediaButtonLabel}` : `▶ ${mediaButtonLabel}`}
           </button>
-          <div className="musicMeta">{tr.musicNow}: {siteSettings.music_title || '—'}</div>
+          <div className="musicMeta">{tr.musicNow}: {siteSettings.music_title || '—'} • {mediaPlatform}</div>
         </div>
       </section>
+
+      {mediaFrameOpen && youtubeEmbedUrl && (
+        <section className="panel neonPanel mediaEmbedPanel">
+          <div className="mediaEmbedHeader">
+            <strong>{siteSettings.music_title || 'YouTube'}</strong>
+            <button className="cyanButton" onClick={() => { setMediaFrameOpen(false); setMusicPlaying(false); }}>× {tr.close}</button>
+          </div>
+          <iframe
+            src={youtubeEmbedUrl}
+            title={siteSettings.music_title || 'YouTube media'}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        </section>
+      )}
 
       {helpOpen && (
         <section className="modalOverlay" role="dialog" aria-modal="true" aria-label={tr.helpTitle}>
@@ -732,10 +865,14 @@ export default function App() {
               <div className="mediaPanel">
                 <h3>🎵 {tr.musicNow}</h3>
                 <div className="musicControls">
-                  <button className="cyanButton" onClick={() => unguarded(toggleMusic)} disabled={!siteSettings.music_url}>{musicPlaying ? tr.pauseMusic : tr.playMusic}</button>
-                  <button onClick={() => changeVolume(-0.1)}>− {tr.volumeDown}</button>
-                  <input type="range" min="0" max="1" step="0.01" value={siteForm.volume} onChange={(e) => { setSiteForm({ ...siteForm, volume: e.target.value }); setSiteSettings({ ...siteSettings, volume: e.target.value }); }} />
-                  <button onClick={() => changeVolume(0.1)}>+ {tr.volumeUp}</button>
+                  <button className="cyanButton" onClick={() => unguarded(toggleMusic)} disabled={!mediaUrl}>{mediaFrameOpen || musicPlaying ? tr.pauseMusic : tr.playMusic}</button>
+                  <button onClick={() => changeVolume(-0.1)} disabled={volumeDisabled}>− {tr.volumeDown}</button>
+                  <input type="range" min="0" max="1" step="0.01" value={siteForm.volume} disabled={volumeDisabled} onChange={(e) => { setSiteForm({ ...siteForm, volume: e.target.value }); setSiteSettings({ ...siteSettings, volume: e.target.value }); }} />
+                  <button onClick={() => changeVolume(0.1)} disabled={volumeDisabled}>+ {tr.volumeUp}</button>
+                  <p className="subtle mediaHint">{mediaKind === 'directAudio'
+                    ? (lang === 'vi' ? 'Link audio trực tiếp: điều chỉnh âm lượng bằng thanh này.' : lang === 'en' ? 'Direct audio link: this volume slider works here.' : '直接音频链接：此音量滑块可用。')
+                    : (lang === 'vi' ? 'YouTube/Facebook/TikTok/Douyin sẽ mở bằng trình phát/nền tảng riêng; âm lượng chỉnh trong nền tảng đó.' : lang === 'en' ? 'YouTube/Facebook/TikTok/Douyin open in their own player/platform; volume is controlled there.' : 'YouTube/Facebook/TikTok/Douyin 会使用各自播放器/平台打开；音量在平台内调整。')}
+                  </p>
                 </div>
               </div>
 
@@ -747,7 +884,7 @@ export default function App() {
                   <label>{tr.backgroundUrl}<input value={siteForm.backgroundUrl} onChange={(e) => setSiteForm({ ...siteForm, backgroundUrl: e.target.value })} placeholder="/wolf-bg.jpg hoặc https://..." /></label>
                   <label>{tr.musicTitle}<input value={siteForm.musicTitle} onChange={(e) => setSiteForm({ ...siteForm, musicTitle: e.target.value })} /></label>
                 </div>
-                <label>{tr.musicUrl}<input value={siteForm.musicUrl} onChange={(e) => setSiteForm({ ...siteForm, musicUrl: e.target.value })} placeholder="https://...mp3" /></label>
+                <label>{tr.musicUrl}<input value={siteForm.musicUrl} onChange={(e) => setSiteForm({ ...siteForm, musicUrl: e.target.value })} placeholder="YouTube/Facebook/TikTok/Douyin hoặc https://...mp3" /></label>
                 <label className="checkRow"><input type="checkbox" checked={siteForm.musicEnabled} onChange={(e) => setSiteForm({ ...siteForm, musicEnabled: e.target.checked })} /> {tr.enableMusic}</label>
                 <button className="primary hotPink" onClick={() => unguarded(saveSiteSettings)}>💾 {tr.saveSite}</button>
               </div>
@@ -758,7 +895,7 @@ export default function App() {
                   <label>{tr.requesterName}<input value={requestForm.requesterName} onChange={(e) => setRequestForm({ ...requestForm, requesterName: e.target.value })} /></label>
                   <label>{tr.songTitle}<input value={requestForm.songTitle} onChange={(e) => setRequestForm({ ...requestForm, songTitle: e.target.value })} /></label>
                 </div>
-                <label>{tr.musicUrl}<input value={requestForm.musicUrl} onChange={(e) => setRequestForm({ ...requestForm, musicUrl: e.target.value })} placeholder="https://...mp3" /></label>
+                <label>{tr.musicUrl}<input value={requestForm.musicUrl} onChange={(e) => setRequestForm({ ...requestForm, musicUrl: e.target.value })} placeholder="YouTube/Facebook/TikTok/Douyin hoặc https://...mp3" /></label>
                 <label>{tr.note}<input value={requestForm.note} onChange={(e) => setRequestForm({ ...requestForm, note: e.target.value })} /></label>
                 <button className="cyanButton" onClick={() => unguarded(sendMusicRequest)}>✉ {tr.sendRequest}</button>
               </div>
