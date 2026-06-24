@@ -3,6 +3,7 @@ import { api, ApiResult, GameRate, HistoryItem, MusicRequest, SiteSettings } fro
 
 type Tab = 'basic' | 'scientific' | 'solver' | 'finance' | 'unit' | 'game' | 'settings';
 type Lang = 'vi' | 'en' | 'zh';
+type HelpSection = 'guide' | 'policy' | 'qrt' | 'about';
 
 type DraftState = {
   basic: { a: string; b: string; operation: string };
@@ -27,18 +28,19 @@ const defaultDraft: DraftState = {
 const translations = {
   vi: {
     appBadge: 'HỆ THỐNG TÍNH TOÁN DỮ LIỆU THẬT',
-    subtitle: 'V1 + V2 + V3. Dữ liệu thật qua API và cơ sở dữ liệu, tự động lưu phía máy chủ, độ chính xác mục tiêu ≥ 99%.',
+    subtitle: '',
+    openHelp: 'HDSD A-Z • Chính sách • QRT • Giới thiệu', helpTitle: 'Trung tâm hướng dẫn & thông tin', guideTab: 'HDSD A-Z', policyTab: 'Chính sách', qrtTab: 'QRT', aboutTab: 'Giới thiệu', close: 'Đóng',
     realData: 'Dữ Liệu Thật', serverAutosave: 'Tự Lưu Server', dbOnly: 'Chỉ Dùng CSDL', accuracy: '≥99%',
     language: 'Ngôn Ngữ', vietnamese: 'Tiếng Việt', english: 'English', chinese: '中文',
     connectionTitle: 'Kết nối dữ liệu thật',
     createUser: 'Tạo user thật', loadSession: 'Tải phiên từ CSDL', userId: 'User ID', sessionId: 'Session ID',
     userPlaceholder: 'Nhập User ID...', sessionPlaceholder: 'Nhập Session ID...',
-    dbReady: 'Cơ sở dữ liệu đã cấu hình. Sẵn sàng tự động lưu thật.',
-    dbMissing: 'Thiếu DATABASE_URL. API DB sẽ báo 503 cho đến khi cấu hình Neon/PostgreSQL.',
-    initialStatus: 'Sẵn sàng kết nối dữ liệu thật.',
-    guestCreated: 'Đã tạo user/session thật trong cơ sở dữ liệu. Tự lưu đã bật.',
-    sessionLoaded: 'Đã tải lại phiên từ cơ sở dữ liệu.',
-    autosaved: 'Đã tự lưu server lúc',
+    dbReady: 'Hệ thống sẵn sàng.',
+    dbMissing: 'Hệ thống chưa kết nối cơ sở dữ liệu.',
+    initialStatus: 'Sẵn sàng.',
+    guestCreated: 'Đã tạo phiên sử dụng.',
+    sessionLoaded: 'Đã tải phiên sử dụng.',
+    autosaved: 'Đã lưu lúc',
     needSession: 'Cần User ID + Session ID thật trước khi tính/lưu.',
     tabs: { basic: 'Cơ Bản', scientific: 'Khoa Học', solver: 'Giải PT', finance: 'Tài Chính', unit: 'Đổi Đơn Vị', game: 'Quy Đổi Game', settings: 'Cài Đặt' },
     basicTitle: 'Máy tính cơ bản', operation: 'Phép tính', firstNumber: 'Số thứ nhất', secondNumber: 'Số thứ hai',
@@ -49,23 +51,24 @@ const translations = {
     linear: 'ax + b = 0', quadratic: 'ax² + bx + c = 0', system2: 'Hệ 2 ẩn',
     financeTitle: 'Tính tiền / đời sống', discount: 'Giảm giá', profitLoss: 'Lời / lỗ', simpleInterest: 'Lãi đơn', compoundInterest: 'Lãi kép', installment: 'Trả góp',
     unitTitle: 'Chuyển đổi đơn vị', category: 'Nhóm đơn vị', from: 'Từ', to: 'Sang', convert: 'Đổi',
-    gameTitle: 'Quy đổi game', gameHint: 'Không có tỷ giá ảo. Muốn tính chuẩn thì nhập gói nạp/thẻ thật vào CSDL trước.',
+    gameTitle: 'Quy đổi game', gameHint: 'Chọn game, nhập số tiền và dùng bảng tỷ giá đã lưu để quy đổi.',
     amountVnd: 'Số tiền VND', addRealRate: 'Thêm tỷ giá thật', saveRate: 'Lưu tỷ giá vào CSDL', loadRates: 'Tải tỷ giá', verifiedNote: 'Ghi chú xác minh', source: 'Nguồn', currency: 'Số lượng', bonus: 'Thưởng thêm',
     settingsTitle: 'Cài đặt VIP', saveSettings: 'Lưu cài đặt vào CSDL', theme: 'Giao diện',
-    result: 'Kết quả', noResult: 'Chưa có kết quả.', refreshHistory: 'Làm mới lịch sử', historyDb: 'Lịch sử CSDL', footer: 'Dữ liệu thật qua API & CSDL • Tự động lưu phía server • Độ chính xác mục tiêu ≥ 99%',
+    result: 'Kết quả', noResult: 'Chưa có kết quả.', refreshHistory: 'Làm mới lịch sử', historyDb: 'Lịch sử CSDL', footer: 'Ultimate Math Engine • Công cụ tính toán, quy đổi và quản lý phiên sử dụng.',
     musicNow: 'Nhạc nền', playMusic: 'Bật nhạc', pauseMusic: 'Tắt nhạc', volumeDown: 'Giảm âm', volumeUp: 'Tăng âm',
     adminLock: 'Khóa chỉnh web', adminKey: 'Key quản trị', unlockHint: 'Chỉ người có key mới đổi được ảnh nền và nhạc chung.', unlock: 'Mở khóa', saveSite: 'Lưu ảnh/nhạc web', backgroundUrl: 'Link ảnh nền', musicUrl: 'Link nhạc', musicTitle: 'Tên nhạc', enableMusic: 'Phát nhạc cho web',
     musicRequestTitle: 'Yêu cầu đổi nhạc', requesterName: 'Tên người yêu cầu', songTitle: 'Tên bài nhạc', note: 'Ghi chú', sendRequest: 'Gửi yêu cầu đổi nhạc', approvalBoard: 'Bảng phê duyệt yêu cầu nhạc', loadRequests: 'Tải yêu cầu', approve: 'Duyệt', reject: 'Từ chối', applyMusic: 'Duyệt & đổi nhạc luôn', noRequests: 'Chưa có yêu cầu.'
   },
   en: {
     appBadge: 'REAL-DATA CALCULATION SYSTEM',
-    subtitle: 'V1 + V2 + V3. Real data through API and database, server-side autosave, target accuracy ≥ 99%.',
+    subtitle: '',
+    openHelp: 'A-Z Guide • Policies • QRT • About', helpTitle: 'Guide & information center', guideTab: 'A-Z Guide', policyTab: 'Policies', qrtTab: 'QRT', aboutTab: 'About', close: 'Close',
     realData: 'Real Data', serverAutosave: 'Server Autosave', dbOnly: 'DB Only', accuracy: '≥99%',
     language: 'Language', vietnamese: 'Tiếng Việt', english: 'English', chinese: '中文',
     connectionTitle: 'Real data connection', createUser: 'Create real user', loadSession: 'Load session from DB', userId: 'User ID', sessionId: 'Session ID',
     userPlaceholder: 'Enter User ID...', sessionPlaceholder: 'Enter Session ID...',
-    dbReady: 'Database configured. Real autosave is ready.', dbMissing: 'DATABASE_URL is missing. DB APIs will return 503 until Neon/PostgreSQL is configured.',
-    initialStatus: 'Ready for real data connection.', guestCreated: 'Created a real user/session in the database. Autosave is enabled.', sessionLoaded: 'Session loaded from database.', autosaved: 'Server autosaved at', needSession: 'A real User ID + Session ID is required before calculating/saving.',
+    dbReady: 'System ready.', dbMissing: 'Database connection is not configured.',
+    initialStatus: 'Ready.', guestCreated: 'Session created.', sessionLoaded: 'Session loaded.', autosaved: 'Saved at', needSession: 'A real User ID + Session ID is required before calculating/saving.',
     tabs: { basic: 'Basic', scientific: 'Scientific', solver: 'Equation Solver', finance: 'Finance', unit: 'Unit Converter', game: 'Game Converter', settings: 'Settings' },
     basicTitle: 'Basic calculator', operation: 'Operation', firstNumber: 'First number', secondNumber: 'Second number', firstPlaceholder: 'Enter first number...', secondPlaceholder: 'Enter second number...', calculate: 'Calculate',
     add: 'Add', subtract: 'Subtract', multiply: 'Multiply', divide: 'Divide', percentOf: 'Percent of', power: 'Power', sqrt: 'Square root',
@@ -73,22 +76,23 @@ const translations = {
     solverTitle: 'Automatic solver', solverHint: 'Linear uses first 2 fields. Quadratic uses first 3 fields. 2-variable system uses 6 fields: a,b,c,d,e,f.', solve: 'Solve', linear: 'ax + b = 0', quadratic: 'ax² + bx + c = 0', system2: '2-variable system',
     financeTitle: 'Money / life tools', discount: 'Discount', profitLoss: 'Profit / loss', simpleInterest: 'Simple interest', compoundInterest: 'Compound interest', installment: 'Installment',
     unitTitle: 'Unit converter', category: 'Category', from: 'From', to: 'To', convert: 'Convert',
-    gameTitle: 'Game converter', gameHint: 'No fake rates. Add verified real card/top-up packages to the database first.', amountVnd: 'Amount VND', addRealRate: 'Add real rate', saveRate: 'Save rate to DB', loadRates: 'Load rates', verifiedNote: 'Verification note', source: 'Source', currency: 'Currency amount', bonus: 'Bonus',
+    gameTitle: 'Game converter', gameHint: 'Choose a game, enter an amount, and convert using saved rate rows.', amountVnd: 'Amount VND', addRealRate: 'Add real rate', saveRate: 'Save rate to DB', loadRates: 'Load rates', verifiedNote: 'Verification note', source: 'Source', currency: 'Currency amount', bonus: 'Bonus',
     settingsTitle: 'VIP settings', saveSettings: 'Save settings to DB', theme: 'Theme',
-    result: 'Result', noResult: 'No result yet.', refreshHistory: 'Refresh history', historyDb: 'DB history', footer: 'Real data via API & DB • Server-side autosave • Target accuracy ≥ 99%',
+    result: 'Result', noResult: 'No result yet.', refreshHistory: 'Refresh history', historyDb: 'DB history', footer: 'Ultimate Math Engine • Calculator, converter, and session management tool.',
     musicNow: 'Background music', playMusic: 'Play music', pauseMusic: 'Pause music', volumeDown: 'Volume down', volumeUp: 'Volume up',
     adminLock: 'Web edit lock', adminKey: 'Admin key', unlockHint: 'Only the key holder can change the global background and music.', unlock: 'Unlock', saveSite: 'Save site media', backgroundUrl: 'Background image URL', musicUrl: 'Music URL', musicTitle: 'Music title', enableMusic: 'Enable site music',
     musicRequestTitle: 'Request music change', requesterName: 'Requester name', songTitle: 'Song title', note: 'Note', sendRequest: 'Send music request', approvalBoard: 'Music request approval board', loadRequests: 'Load requests', approve: 'Approve', reject: 'Reject', applyMusic: 'Approve & apply', noRequests: 'No requests yet.'
   },
   zh: {
     appBadge: '真实数据计算系统',
-    subtitle: 'V1 + V2 + V3。数据通过 API 与数据库，服务器端自动保存，目标准确率 ≥ 99%。',
+    subtitle: '',
+    openHelp: 'A-Z 指南 • 政策 • QRT • 介绍', helpTitle: '指南与信息中心', guideTab: 'A-Z 指南', policyTab: '政策', qrtTab: 'QRT', aboutTab: '介绍', close: '关闭',
     realData: '真实数据', serverAutosave: '服务器自动保存', dbOnly: '仅使用数据库', accuracy: '≥99%',
     language: '语言', vietnamese: 'Tiếng Việt', english: 'English', chinese: '中文',
     connectionTitle: '真实数据连接', createUser: '创建真实用户', loadSession: '从数据库加载会话', userId: '用户 ID', sessionId: '会话 ID',
     userPlaceholder: '输入 User ID...', sessionPlaceholder: '输入 Session ID...',
-    dbReady: '数据库已配置。真实自动保存已就绪。', dbMissing: '缺少 DATABASE_URL。配置 Neon/PostgreSQL 前，数据库 API 将返回 503。',
-    initialStatus: '准备连接真实数据。', guestCreated: '已在数据库创建真实用户/会话。自动保存已开启。', sessionLoaded: '已从数据库加载会话。', autosaved: '服务器自动保存于', needSession: '计算/保存前需要真实 User ID + Session ID。',
+    dbReady: '系统已就绪。', dbMissing: '数据库连接尚未配置。',
+    initialStatus: '已就绪。', guestCreated: '会话已创建。', sessionLoaded: '会话已加载。', autosaved: '保存于', needSession: '计算/保存前需要真实 User ID + Session ID。',
     tabs: { basic: '基础', scientific: '科学', solver: '方程求解', finance: '财务', unit: '单位转换', game: '游戏换算', settings: '设置' },
     basicTitle: '基础计算器', operation: '运算', firstNumber: '第一个数', secondNumber: '第二个数', firstPlaceholder: '输入第一个数...', secondPlaceholder: '输入第二个数...', calculate: '计算结果',
     add: '加', subtract: '减', multiply: '乘', divide: '除', percentOf: '百分比', power: '幂', sqrt: '平方根',
@@ -96,9 +100,9 @@ const translations = {
     solverTitle: '自动解题', solverHint: '一次方程使用前 2 个输入。二次方程使用前 3 个输入。二元方程组使用 6 个输入：a,b,c,d,e,f。', solve: '求解', linear: 'ax + b = 0', quadratic: 'ax² + bx + c = 0', system2: '二元方程组',
     financeTitle: '金钱 / 生活工具', discount: '折扣', profitLoss: '盈亏', simpleInterest: '单利', compoundInterest: '复利', installment: '分期付款',
     unitTitle: '单位转换', category: '类别', from: '从', to: '到', convert: '转换',
-    gameTitle: '游戏换算', gameHint: '不使用虚假汇率。请先把已验证的真实充值/卡券套餐加入数据库。', amountVnd: '金额 VND', addRealRate: '添加真实汇率', saveRate: '保存汇率到数据库', loadRates: '加载汇率', verifiedNote: '验证备注', source: '来源', currency: '货币数量', bonus: '额外奖励',
+    gameTitle: '游戏换算', gameHint: '选择游戏、输入金额，并使用已保存的汇率进行换算。', amountVnd: '金额 VND', addRealRate: '添加真实汇率', saveRate: '保存汇率到数据库', loadRates: '加载汇率', verifiedNote: '验证备注', source: '来源', currency: '货币数量', bonus: '额外奖励',
     settingsTitle: 'VIP 设置', saveSettings: '保存设置到数据库', theme: '主题',
-    result: '结果', noResult: '暂无结果。', refreshHistory: '刷新历史', historyDb: '数据库历史', footer: '真实数据经由 API 与数据库 • 服务器端自动保存 • 目标准确率 ≥ 99%',
+    result: '结果', noResult: '暂无结果。', refreshHistory: '刷新历史', historyDb: '数据库历史', footer: 'Ultimate Math Engine • 计算、换算与会话管理工具。',
     musicNow: '背景音乐', playMusic: '播放音乐', pauseMusic: '暂停音乐', volumeDown: '降低音量', volumeUp: '提高音量',
     adminLock: '网站编辑锁', adminKey: '管理密钥', unlockHint: '只有持有密钥的人可以修改全站背景和音乐。', unlock: '解锁', saveSite: '保存网站媒体', backgroundUrl: '背景图链接', musicUrl: '音乐链接', musicTitle: '音乐标题', enableMusic: '启用网站音乐',
     musicRequestTitle: '申请更换音乐', requesterName: '申请人', songTitle: '歌曲名', note: '备注', sendRequest: '提交音乐申请', approvalBoard: '音乐申请审核表', loadRequests: '加载申请', approve: '批准', reject: '拒绝', applyMusic: '批准并应用', noRequests: '暂无申请。'
@@ -119,6 +123,135 @@ const gamePairs = [
   { gameCode: 'HSR', currencyCode: 'NAS', label: 'Honkai Star Rail — NAS' },
   { gameCode: 'GENSHIN', currencyCode: 'NT', label: 'Genshin Impact — NT' }
 ];
+
+const helpContent: Record<Lang, Record<HelpSection, { title: string; items: string[] }>> = {
+  vi: {
+    guide: {
+      title: 'Hướng dẫn sử dụng từ A-Z',
+      items: [
+        'Bấm “Tạo user thật” để tạo phiên sử dụng. Khi có User ID và Session ID, các thao tác tính toán/lưu cài đặt sẽ đi qua hệ thống máy chủ.',
+        'Chọn module cần dùng ở thanh tab: Cơ Bản, Khoa Học, Giải PT, Tài Chính, Đổi Đơn Vị, Quy Đổi Game hoặc Cài Đặt.',
+        'Nhập số liệu vào biểu mẫu, bấm “Tính kết quả” hoặc “Đổi”. Kết quả sẽ hiện ở khung bên phải, lịch sử nằm trong mục Lịch sử.',
+        'Tab Quy Đổi Game dùng bảng tỷ giá đã lưu. Muốn quy đổi KC/QH/NAS/NT chuẩn, hãy nhập gói nạp/thẻ đã xác minh trước.',
+        'Tab Cài Đặt cho phép đổi ngôn ngữ, bật/tắt nhạc, chỉnh âm lượng, gửi yêu cầu đổi nhạc và quản trị ảnh nền/nhạc nếu có key.',
+        'Nút “Tải phiên từ CSDL” dùng khi muốn mở lại đúng phiên đã tạo trước đó bằng User ID và Session ID.'
+      ]
+    },
+    policy: {
+      title: 'Chính sách sử dụng',
+      items: [
+        'Kết quả tính toán phụ thuộc vào số liệu người dùng nhập và công thức của từng module.',
+        'Các công cụ tài chính chỉ phục vụ tham khảo, không thay thế tư vấn tài chính, pháp lý hoặc quyết định mua bán thật.',
+        'Tỷ giá game phải được cập nhật từ nguồn hợp lệ. Nếu nhà phát hành đổi giá/gói nạp, người quản trị cần cập nhật lại bảng tỷ giá.',
+        'Không nhập mật khẩu, mã OTP, khóa ngân hàng hoặc dữ liệu nhạy cảm vào các ô ghi chú/yêu cầu.',
+        'Người dùng gửi yêu cầu đổi nhạc phải dùng link hợp lệ và chịu trách nhiệm về nội dung/link đã gửi.'
+      ]
+    },
+    qrt: {
+      title: 'QRT — Quyền riêng tư & trách nhiệm',
+      items: [
+        'Dữ liệu phiên, lịch sử tính toán, tỷ giá game, cài đặt giao diện và yêu cầu đổi nhạc được lưu theo cấu trúc của hệ thống.',
+        'Key quản trị chỉ dùng để chỉnh ảnh nền, nhạc nền và duyệt yêu cầu. Không chia sẻ key cho người khác.',
+        'Người quản trị chịu trách nhiệm kiểm tra link nhạc/ảnh trước khi phê duyệt hoặc áp dụng lên web.',
+        'Hệ thống không tự xác minh giá game theo thời gian thực; độ đúng của quy đổi game phụ thuộc bảng tỷ giá hiện đang lưu.',
+        'Khi phát hiện dữ liệu sai, link lỗi hoặc nội dung không phù hợp, hãy cập nhật/xóa trong phần quản trị.'
+      ]
+    },
+    about: {
+      title: 'Giới thiệu Ultimate Math Engine',
+      items: [
+        'Ultimate Math Engine là web tính toán đa năng: máy tính cơ bản, khoa học, giải phương trình, tài chính, đổi đơn vị và quy đổi game.',
+        'Web được thiết kế theo phong cách neon, hỗ trợ tiếng Việt, tiếng Anh và tiếng Trung.',
+        'Mục tiêu của web là gom nhiều công cụ tính toán thường dùng vào một nơi, giao diện dễ dùng và có thể mở rộng thêm module sau này.',
+        'Bản hiện tại có hệ thống nhạc nền, yêu cầu đổi nhạc, bảng duyệt yêu cầu và khóa quản trị cho ảnh nền/nhạc chung.'
+      ]
+    }
+  },
+  en: {
+    guide: {
+      title: 'A-Z user guide',
+      items: [
+        'Click “Create real user” to create a session. After you have a User ID and Session ID, calculations and settings can be saved through the server.',
+        'Choose a module from the tabs: Basic, Scientific, Equation Solver, Finance, Unit Converter, Game Converter, or Settings.',
+        'Enter values, then click “Calculate” or “Convert”. Results appear on the right and history appears in the History panel.',
+        'Game Converter uses saved rate rows. For accurate KC/QH/NAS/NT conversion, add verified top-up/card packages first.',
+        'Settings lets you change language, play/pause music, adjust volume, submit music requests, and edit global background/music with the admin key.',
+        'Use “Load session from DB” when you want to reopen a previous session with its User ID and Session ID.'
+      ]
+    },
+    policy: {
+      title: 'Usage policies',
+      items: [
+        'Calculation results depend on the values entered by the user and each module formula.',
+        'Finance tools are for reference only and do not replace financial, legal, or purchasing advice.',
+        'Game rates must be updated from valid sources. If publishers change prices/packages, the admin must update the rate table.',
+        'Do not enter passwords, OTP codes, banking keys, or sensitive information into notes or request fields.',
+        'Music request senders are responsible for submitting valid links and appropriate content.'
+      ]
+    },
+    qrt: {
+      title: 'QRT — Privacy & responsibility',
+      items: [
+        'Sessions, calculation history, game rates, UI settings, and music requests are saved according to the system structure.',
+        'The admin key is only for background/music management and request approval. Do not share it.',
+        'Admins are responsible for checking music/image links before approval or publishing.',
+        'The system does not verify game prices in real time; game conversion accuracy depends on the currently saved rate table.',
+        'When incorrect data, broken links, or unsuitable content are found, update or remove them in the admin area.'
+      ]
+    },
+    about: {
+      title: 'About Ultimate Math Engine',
+      items: [
+        'Ultimate Math Engine is a multi-tool calculator web app: basic calculator, scientific calculator, equation solver, finance tools, unit converter, and game converter.',
+        'The web app uses a neon interface and supports Vietnamese, English, and Chinese.',
+        'Its goal is to collect common calculation tools in one place with a clear interface and room for future modules.',
+        'The current version includes background music, music change requests, request approval, and admin-locked background/music controls.'
+      ]
+    }
+  },
+  zh: {
+    guide: {
+      title: 'A-Z 使用指南',
+      items: [
+        '点击“创建真实用户”创建会话。获得 User ID 和 Session ID 后，计算与设置可以通过服务器保存。',
+        '从标签栏选择模块：基础、科学、方程求解、财务、单位转换、游戏换算或设置。',
+        '输入数值后点击“计算”或“转换”。结果显示在右侧，历史记录显示在历史面板。',
+        '游戏换算使用已保存的汇率行。若要准确换算 KC/QH/NAS/NT，请先添加已验证的充值/卡券套餐。',
+        '设置页面可切换语言、播放/暂停音乐、调整音量、提交换歌申请，并可使用管理密钥修改全站背景/音乐。',
+        '若要重新打开之前的会话，请使用 User ID 和 Session ID 点击“从数据库加载会话”。'
+      ]
+    },
+    policy: {
+      title: '使用政策',
+      items: [
+        '计算结果取决于用户输入的数据以及各模块公式。',
+        '财务工具仅供参考，不能替代财务、法律或真实交易建议。',
+        '游戏汇率必须来自有效来源。若发行商更改价格/套餐，管理员需要更新汇率表。',
+        '请勿在备注或申请栏输入密码、OTP、银行密钥或敏感信息。',
+        '提交换歌申请的用户需对链接有效性与内容负责。'
+      ]
+    },
+    qrt: {
+      title: 'QRT — 隐私与责任',
+      items: [
+        '会话、计算历史、游戏汇率、界面设置和换歌申请会按系统结构保存。',
+        '管理密钥仅用于背景/音乐管理和申请审核，请勿分享。',
+        '管理员在批准或发布前需要检查音乐/图片链接。',
+        '系统不会实时验证游戏价格；游戏换算准确度取决于当前保存的汇率表。',
+        '发现错误数据、失效链接或不合适内容时，请在管理区更新或删除。'
+      ]
+    },
+    about: {
+      title: '关于 Ultimate Math Engine',
+      items: [
+        'Ultimate Math Engine 是一个多功能计算网站：基础计算器、科学计算器、方程求解、财务工具、单位转换和游戏换算。',
+        '网站采用霓虹风格界面，支持越南语、英语和中文。',
+        '目标是把常用计算工具集中在一个地方，界面清晰，并能继续扩展新模块。',
+        '当前版本包含背景音乐、换歌申请、申请审核，以及受管理密钥保护的背景/音乐控制。'
+      ]
+    }
+  }
+};
 
 const defaultSiteSettings: SiteSettings = {
   id: 'global',
@@ -168,6 +301,8 @@ export default function App() {
   const [adminKey, setAdminKey] = useState('');
   const [siteForm, setSiteForm] = useState({ backgroundUrl: '/wolf-bg.jpg', musicUrl: '', musicTitle: '', musicEnabled: false, volume: '0.45' });
   const [requestForm, setRequestForm] = useState({ requesterName: '', songTitle: '', musicUrl: '', note: '' });
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpSection, setHelpSection] = useState<HelpSection>('guide');
 
   const lang = draft.settings.language;
   const tr = translations[lang];
@@ -393,12 +528,8 @@ export default function App() {
         <div className="heroCopy">
           <p className="eyebrow">{tr.appBadge}</p>
           <h1>Ultimate Math Engine</h1>
-          <p className="subtle heroSubtle">{tr.subtitle}</p>
-          <div className="badges">
-            <span>◉ {tr.realData}</span>
-            <span>☁ {tr.serverAutosave}</span>
-            <span>▣ {tr.dbOnly}</span>
-            <span>◎ {tr.accuracy}</span>
+          <div className="heroActions">
+            <button className="primary helpButton" onClick={() => setHelpOpen(true)}>📘 {tr.openHelp}</button>
           </div>
         </div>
         <div className="topTools">
@@ -415,6 +546,40 @@ export default function App() {
           <div className="musicMeta">{tr.musicNow}: {siteSettings.music_title || '—'}</div>
         </div>
       </section>
+
+      {helpOpen && (
+        <section className="modalOverlay" role="dialog" aria-modal="true" aria-label={tr.helpTitle}>
+          <div className="helpModal panel neonPanel">
+            <div className="helpHeader">
+              <div>
+                <p className="eyebrow">{tr.helpTitle}</p>
+                <h2>{helpContent[lang][helpSection].title}</h2>
+              </div>
+              <button className="closeButton" onClick={() => setHelpOpen(false)}>× {tr.close}</button>
+            </div>
+
+            <div className="helpTabs">
+              {(['guide', 'policy', 'qrt', 'about'] as HelpSection[]).map((section) => (
+                <button
+                  key={section}
+                  className={helpSection === section ? 'active' : ''}
+                  onClick={() => setHelpSection(section)}
+                >
+                  {section === 'guide' ? tr.guideTab : section === 'policy' ? tr.policyTab : section === 'qrt' ? tr.qrtTab : tr.aboutTab}
+                </button>
+              ))}
+            </div>
+
+            <div className="helpBody">
+              <ol>
+                {helpContent[lang][helpSection].items.map((item, index) => (
+                  <li key={`${helpSection}-${index}`}>{item}</li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="panel neonPanel connectionGrid cleanConnection">
         <div className="connectionIntro">
