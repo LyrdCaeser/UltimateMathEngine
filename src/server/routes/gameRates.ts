@@ -5,9 +5,81 @@ import { sendError, saveHistory } from './helpers';
 
 export const gameRatesRouter = Router();
 
+type OfficialGameSource = {
+  gameCode: string;
+  currencyCode: string;
+  sourceName: string;
+  officialUrl: string;
+};
+
+const OFFICIAL_GAME_SOURCES: Record<string, OfficialGameSource> = {
+  FREE_FIRE: {
+    gameCode: 'FREE_FIRE',
+    currencyCode: 'KC',
+    sourceName: 'Garena nạp thẻ chính thức',
+    officialUrl: 'https://napthe.vn/app'
+  },
+  LIEN_QUAN: {
+    gameCode: 'LIEN_QUAN',
+    currencyCode: 'QH',
+    sourceName: 'Garena nạp thẻ chính thức',
+    officialUrl: 'https://napthe.vn/app'
+  },
+  HSR: {
+    gameCode: 'HSR',
+    currencyCode: 'NAS',
+    sourceName: 'HoYoverse Top-Up Center',
+    officialUrl: 'https://sdk.hoyoverse.com/payment/hsr/index.html'
+  },
+  GENSHIN: {
+    gameCode: 'GENSHIN',
+    currencyCode: 'NT',
+    sourceName: 'HoYoverse Top-Up Center',
+    officialUrl: 'https://sdk.hoyoverse.com/payment/genshin/index.html'
+  }
+};
+
 function normalizeCode(value: unknown, fieldName: string): string {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${fieldName} is required`);
   return value.trim().toUpperCase();
+}
+
+function requireAdminKey(input: unknown): void {
+  const configuredKey = process.env.UME_ADMIN_KEY;
+  if (!configuredKey || !configuredKey.trim()) {
+    const error = new Error('UME_ADMIN_KEY is not configured on the server.');
+    (error as Error & { status?: number }).status = 503;
+    throw error;
+  }
+
+  if (typeof input !== 'string' || input !== configuredKey.trim()) {
+    const error = new Error('Sai key quản trị. Không có quyền cập nhật tỷ giá chính thức.');
+    (error as Error & { status?: number }).status = 401;
+    throw error;
+  }
+}
+
+function sendRouteError(res: import('express').Response, error: unknown): void {
+  const status = (error as Error & { status?: number })?.status;
+  if (status) {
+    res.status(status).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    return;
+  }
+  sendError(res, error);
+}
+
+function cleanPositiveNumber(value: unknown, fieldName: string): string {
+  const raw = typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '';
+  const n = Number(raw);
+  if (!raw || !Number.isFinite(n) || n <= 0) throw new Error(`${fieldName} must be a positive number`);
+  return raw;
+}
+
+function cleanNonNegativeNumber(value: unknown, fieldName: string): string {
+  const raw = value === undefined || value === null || value === '' ? '0' : String(value).trim();
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0) throw new Error(`${fieldName} must be a non-negative number`);
+  return raw;
 }
 
 gameRatesRouter.get('/game-rates', async (_req, res) => {
@@ -20,17 +92,31 @@ gameRatesRouter.get('/game-rates', async (_req, res) => {
     );
     res.json({ rates: result.rows });
   } catch (error) {
-    sendError(res, error);
+    sendRouteError(res, error);
   }
 });
 
 gameRatesRouter.post('/game-rates', async (req, res) => {
   try {
+    requireAdminKey(req.body.adminKey);
+
     const gameCode = normalizeCode(req.body.gameCode, 'gameCode');
     const currencyCode = normalizeCode(req.body.currencyCode, 'currencyCode');
-    const sourceName = typeof req.body.sourceName === 'string' && req.body.sourceName.trim()
-      ? req.body.sourceName.trim()
-      : 'Manual verified rate';
+    const officialSource = OFFICIAL_GAME_SOURCES[gameCode];
+
+    if (!officialSource) {
+      return res.status(400).json({ error: 'Game chưa được hỗ trợ trong bảng nguồn chính thức.' });
+    }
+
+    if (currencyCode !== officialSource.currencyCode) {
+      return res.status(400).json({ error: `Currency không hợp lệ cho ${gameCode}. Phải là ${officialSource.currencyCode}.` });
+    }
+
+    const amountVnd = cleanPositiveNumber(req.body.amountVnd, 'amountVnd');
+    const currencyAmount = cleanPositiveNumber(req.body.currencyAmount, 'currencyAmount');
+    const bonusAmount = cleanNonNegativeNumber(req.body.bonusAmount, 'bonusAmount');
+    const note = `Official source: ${officialSource.officialUrl}`;
+
     const result = await query(
       `INSERT INTO game_rate_tables
        (game_code, currency_code, source_name, amount_vnd, currency_amount, bonus_amount, is_active, note, source_updated_at)
@@ -38,53 +124,53 @@ gameRatesRouter.post('/game-rates', async (req, res) => {
        RETURNING id, game_code, currency_code, source_name, amount_vnd::text, currency_amount::text,
                  bonus_amount::text, is_active, note, source_updated_at, created_at, updated_at`,
       [
-        gameCode,
-        currencyCode,
-        sourceName,
-        req.body.amountVnd,
-        req.body.currencyAmount,
-        req.body.bonusAmount ?? 0,
-        typeof req.body.note === 'string' ? req.body.note : null
+        officialSource.gameCode,
+        officialSource.currencyCode,
+        officialSource.sourceName,
+        amountVnd,
+        currencyAmount,
+        bonusAmount,
+        note
       ]
     );
+
     res.json({ rate: result.rows[0] });
   } catch (error) {
-    sendError(res, error);
+    sendRouteError(res, error);
   }
 });
 
 gameRatesRouter.patch('/game-rates/:id', async (req, res) => {
   try {
+    requireAdminKey(req.body.adminKey);
+
+    const bonusAmount = req.body.bonusAmount === undefined ? null : cleanNonNegativeNumber(req.body.bonusAmount, 'bonusAmount');
+    const currencyAmount = req.body.currencyAmount === undefined ? null : cleanPositiveNumber(req.body.currencyAmount, 'currencyAmount');
+    const amountVnd = req.body.amountVnd === undefined ? null : cleanPositiveNumber(req.body.amountVnd, 'amountVnd');
+
     const result = await query(
       `UPDATE game_rate_tables
-       SET game_code = COALESCE($2, game_code),
-           currency_code = COALESCE($3, currency_code),
-           source_name = COALESCE($4, source_name),
-           amount_vnd = COALESCE($5, amount_vnd),
-           currency_amount = COALESCE($6, currency_amount),
-           bonus_amount = COALESCE($7, bonus_amount),
-           is_active = COALESCE($8, is_active),
-           note = COALESCE($9, note),
-           source_updated_at = now()
+       SET amount_vnd = COALESCE($2, amount_vnd),
+           currency_amount = COALESCE($3, currency_amount),
+           bonus_amount = COALESCE($4, bonus_amount),
+           is_active = COALESCE($5, is_active),
+           source_updated_at = now(),
+           updated_at = now()
        WHERE id = $1
        RETURNING id, game_code, currency_code, source_name, amount_vnd::text, currency_amount::text,
                  bonus_amount::text, is_active, note, source_updated_at, created_at, updated_at`,
       [
         req.params.id,
-        req.body.gameCode ? normalizeCode(req.body.gameCode, 'gameCode') : null,
-        req.body.currencyCode ? normalizeCode(req.body.currencyCode, 'currencyCode') : null,
-        typeof req.body.sourceName === 'string' ? req.body.sourceName : null,
-        req.body.amountVnd ?? null,
-        req.body.currencyAmount ?? null,
-        req.body.bonusAmount ?? null,
-        typeof req.body.isActive === 'boolean' ? req.body.isActive : null,
-        typeof req.body.note === 'string' ? req.body.note : null
+        amountVnd,
+        currencyAmount,
+        bonusAmount,
+        typeof req.body.isActive === 'boolean' ? req.body.isActive : null
       ]
     );
     if (result.rowCount === 0) return res.status(404).json({ error: 'Rate not found' });
     return res.json({ rate: result.rows[0] });
   } catch (error) {
-    sendError(res, error);
+    sendRouteError(res, error);
   }
 });
 
@@ -94,6 +180,11 @@ gameRatesRouter.post('/convert/game', async (req, res) => {
     const gameCode = normalizeCode(req.body.gameCode, 'gameCode');
     const currencyCode = normalizeCode(req.body.currencyCode, 'currencyCode');
 
+    const officialSource = OFFICIAL_GAME_SOURCES[gameCode];
+    if (!officialSource || officialSource.currencyCode !== currencyCode) {
+      return res.status(400).json({ error: 'Game/currency không hợp lệ.' });
+    }
+
     const rateResult = await query<GameRate>(
       `SELECT id, game_code, currency_code, source_name, amount_vnd::text, currency_amount::text,
               bonus_amount::text, note, source_updated_at
@@ -102,6 +193,12 @@ gameRatesRouter.post('/convert/game', async (req, res) => {
        ORDER BY amount_vnd ASC`,
       [gameCode, currencyCode]
     );
+
+    if (rateResult.rowCount === 0) {
+      return res.status(400).json({
+        error: 'Chưa có tỷ giá chính thức đã xác minh cho game này. Quản trị viên cần cập nhật từ nguồn chính thức trước.'
+      });
+    }
 
     const conversion = convertByRateTable({
       gameCode,
@@ -117,12 +214,15 @@ gameRatesRouter.post('/convert/game', async (req, res) => {
       module: 'game',
       expression: `${req.body.amountVnd} VND -> ${gameCode}/${currencyCode}`,
       result: conversion.resultAmount,
-      precisionNote: conversion.precisionNote,
+      precisionNote: `${conversion.precisionNote} Source: ${officialSource.sourceName}.`,
       inputPayload: { ...req.body, method: conversion.method, usedRates: conversion.usedRates }
     });
 
-    res.json(conversion);
+    res.json({
+      ...conversion,
+      precisionNote: `${conversion.precisionNote} Nguồn: ${officialSource.sourceName}.`
+    });
   } catch (error) {
-    sendError(res, error);
+    sendRouteError(res, error);
   }
 });
