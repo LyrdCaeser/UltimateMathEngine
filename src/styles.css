@@ -667,3 +667,78 @@ select:disabled {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.officialRatePanel {
+  border: 1px solid rgba(32, 215, 255, 0.28);
+  background: rgba(3, 8, 26, 0.42);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: inset 0 0 22px rgba(32, 215, 255, 0.07), 0 0 20px rgba(186, 74, 255, 0.11);
+}
+
+.officialRateHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.officialRateHeader h3 {
+  margin: 0 0 6px;
+}
+
+.officialSourceLink {
+  text-decoration: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.readOnlyRateGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.readOnlyRateGrid span {
+  min-height: 62px;
+  border: 1px solid rgba(150, 117, 255, 0.28);
+  background: rgba(7, 12, 31, 0.64);
+  border-radius: 16px;
+  padding: 11px 12px;
+  color: #f6f3ff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.readOnlyRateGrid b {
+  display: block;
+  margin-bottom: 4px;
+  color: #84f4ff;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.officialRateInputs label {
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .officialRateHeader {
+    flex-direction: column;
+  }
+
+  .readOnlyRateGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .readOnlyRateGrid {
+    grid-template-columns: 1fr;
+  }
+}
