@@ -9,6 +9,7 @@ import { sessionsRouter } from './routes/sessions';
 import { calculationsRouter } from './routes/calculations';
 import { gameRatesRouter } from './routes/gameRates';
 import { settingsRouter } from './routes/settings';
+import { siteCustomizationRouter } from './routes/siteCustomization';
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -31,6 +32,7 @@ app.use('/api/sessions', sessionsRouter);
 app.use('/api', calculationsRouter);
 app.use('/api', gameRatesRouter);
 app.use('/api/settings', settingsRouter);
+app.use('/api', siteCustomizationRouter);
 
 const distPath = join(process.cwd(), 'dist');
 if (existsSync(distPath)) {
