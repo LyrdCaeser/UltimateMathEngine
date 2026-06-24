@@ -99,3 +99,36 @@ DROP TRIGGER IF EXISTS game_rate_tables_set_updated_at ON game_rate_tables;
 CREATE TRIGGER game_rate_tables_set_updated_at
 BEFORE UPDATE ON game_rate_tables
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE TABLE IF NOT EXISTS site_settings (
+  id text PRIMARY KEY DEFAULT 'global' CHECK (id = 'global'),
+  background_url text NOT NULL DEFAULT '/wolf-bg.jpg',
+  music_url text NOT NULL DEFAULT '',
+  music_title text NOT NULL DEFAULT '',
+  music_enabled boolean NOT NULL DEFAULT false,
+  volume numeric NOT NULL DEFAULT 0.45 CHECK (volume >= 0 AND volume <= 1),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+INSERT INTO site_settings(id)
+VALUES('global')
+ON CONFLICT(id) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS music_change_requests (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  requester_name text NOT NULL DEFAULT 'Người dùng',
+  song_title text NOT NULL,
+  music_url text NOT NULL,
+  note text,
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  reviewed_at timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS idx_music_change_requests_status_created
+  ON music_change_requests(status, created_at DESC);
+
+DROP TRIGGER IF EXISTS site_settings_set_updated_at ON site_settings;
+CREATE TRIGGER site_settings_set_updated_at
+BEFORE UPDATE ON site_settings
+FOR EACH ROW EXECUTE FUNCTION set_updated_at();
