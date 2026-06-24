@@ -52,8 +52,8 @@ const translations = {
     linear: 'ax + b = 0', quadratic: 'ax² + bx + c = 0', system2: 'Hệ 2 ẩn',
     financeTitle: 'Tính tiền / đời sống', discount: 'Giảm giá', profitLoss: 'Lời / lỗ', simpleInterest: 'Lãi đơn', compoundInterest: 'Lãi kép', installment: 'Trả góp',
     unitTitle: 'Chuyển đổi đơn vị', category: 'Nhóm đơn vị', from: 'Từ', to: 'Sang', convert: 'Đổi',
-    gameTitle: 'Quy đổi game', gameHint: 'Chọn game, nhập số tiền và dùng bảng tỷ giá đã lưu để quy đổi.',
-    amountVnd: 'Số tiền VND', addRealRate: 'Thêm tỷ giá thật', saveRate: 'Lưu tỷ giá vào CSDL', loadRates: 'Tải tỷ giá', verifiedNote: 'Ghi chú xác minh', source: 'Nguồn', currency: 'Số lượng', bonus: 'Thưởng thêm',
+    gameTitle: 'Quy đổi game', gameHint: 'Chỉ dùng tỷ giá đã xác minh từ nguồn chính thức. Người dùng chỉ chọn game và nhập số tiền; phần cập nhật tỷ giá bị khóa bằng key quản trị.',
+    amountVnd: 'Số tiền VND', addRealRate: 'Cập nhật tỷ giá chính thức', saveRate: 'Lưu tỷ giá chính thức', loadRates: 'Tải tỷ giá', verifiedNote: 'Ghi chú xác minh', source: 'Nguồn chính thức', currency: 'Số lượng nhận', bonus: 'Thưởng thêm',
     settingsTitle: 'Cài đặt VIP', saveSettings: 'Lưu cài đặt vào CSDL', theme: 'Giao diện',
     result: 'Kết quả', noResult: 'Chưa có kết quả.', refreshHistory: 'Làm mới lịch sử', historyDb: 'Lịch sử CSDL', footer: 'Ultimate Math Engine • Công cụ tính toán, quy đổi và quản lý phiên sử dụng.',
     musicNow: 'Nhạc / video', playMusic: 'Mở link nhạc', pauseMusic: 'Ẩn / tắt', volumeDown: 'Giảm âm', volumeUp: 'Tăng âm',
@@ -77,7 +77,7 @@ const translations = {
     solverTitle: 'Automatic solver', solverHint: 'Linear uses first 2 fields. Quadratic uses first 3 fields. 2-variable system uses 6 fields: a,b,c,d,e,f.', solve: 'Solve', linear: 'ax + b = 0', quadratic: 'ax² + bx + c = 0', system2: '2-variable system',
     financeTitle: 'Money / life tools', discount: 'Discount', profitLoss: 'Profit / loss', simpleInterest: 'Simple interest', compoundInterest: 'Compound interest', installment: 'Installment',
     unitTitle: 'Unit converter', category: 'Category', from: 'From', to: 'To', convert: 'Convert',
-    gameTitle: 'Game converter', gameHint: 'Choose a game, enter an amount, and convert using saved rate rows.', amountVnd: 'Amount VND', addRealRate: 'Add real rate', saveRate: 'Save rate to DB', loadRates: 'Load rates', verifiedNote: 'Verification note', source: 'Source', currency: 'Currency amount', bonus: 'Bonus',
+    gameTitle: 'Game converter', gameHint: 'Only verified official rates are used. Users choose a game and enter an amount; rate updates are locked by admin key.', amountVnd: 'Amount VND', addRealRate: 'Update official rate', saveRate: 'Save official rate', loadRates: 'Load rates', verifiedNote: 'Verification note', source: 'Official source', currency: 'Received amount', bonus: 'Bonus',
     settingsTitle: 'VIP settings', saveSettings: 'Save settings to DB', theme: 'Theme',
     result: 'Result', noResult: 'No result yet.', refreshHistory: 'Refresh history', historyDb: 'DB history', footer: 'Ultimate Math Engine • Calculator, converter, and session management tool.',
     musicNow: 'Music / video', playMusic: 'Open media link', pauseMusic: 'Hide / stop', volumeDown: 'Volume down', volumeUp: 'Volume up',
@@ -101,7 +101,7 @@ const translations = {
     solverTitle: '自动解题', solverHint: '一次方程使用前 2 个输入。二次方程使用前 3 个输入。二元方程组使用 6 个输入：a,b,c,d,e,f。', solve: '求解', linear: 'ax + b = 0', quadratic: 'ax² + bx + c = 0', system2: '二元方程组',
     financeTitle: '金钱 / 生活工具', discount: '折扣', profitLoss: '盈亏', simpleInterest: '单利', compoundInterest: '复利', installment: '分期付款',
     unitTitle: '单位转换', category: '类别', from: '从', to: '到', convert: '转换',
-    gameTitle: '游戏换算', gameHint: '选择游戏、输入金额，并使用已保存的汇率进行换算。', amountVnd: '金额 VND', addRealRate: '添加真实汇率', saveRate: '保存汇率到数据库', loadRates: '加载汇率', verifiedNote: '验证备注', source: '来源', currency: '货币数量', bonus: '额外奖励',
+    gameTitle: '游戏换算', gameHint: '仅使用已验证的官方汇率。用户只选择游戏并输入金额；汇率更新由管理密钥锁定。', amountVnd: '金额 VND', addRealRate: '更新官方汇率', saveRate: '保存官方汇率', loadRates: '加载汇率', verifiedNote: '验证备注', source: '官方来源', currency: '获得数量', bonus: '额外奖励',
     settingsTitle: 'VIP 设置', saveSettings: '保存设置到数据库', theme: '主题',
     result: '结果', noResult: '暂无结果。', refreshHistory: '刷新历史', historyDb: '数据库历史', footer: 'Ultimate Math Engine • 计算、换算与会话管理工具。',
     musicNow: '音乐 / 视频', playMusic: '打开媒体链接', pauseMusic: '隐藏 / 停止', volumeDown: '降低音量', volumeUp: '提高音量',
@@ -124,6 +124,13 @@ const gamePairs = [
   { gameCode: 'HSR', currencyCode: 'NAS', label: 'Honkai Star Rail — NAS' },
   { gameCode: 'GENSHIN', currencyCode: 'NT', label: 'Genshin Impact — NT' }
 ];
+
+const officialGameSources: Record<string, { name: string; url: string; packageLabel: string }> = {
+  FREE_FIRE: { name: 'Garena nạp thẻ chính thức', url: 'https://napthe.vn/app', packageLabel: 'Mệnh giá thẻ Garena' },
+  LIEN_QUAN: { name: 'Garena nạp thẻ chính thức', url: 'https://napthe.vn/app', packageLabel: 'Mệnh giá thẻ Garena' },
+  HSR: { name: 'HoYoverse Top-Up Center', url: 'https://sdk.hoyoverse.com/payment/hsr/index.html', packageLabel: 'Gói nạp HoYoverse' },
+  GENSHIN: { name: 'HoYoverse Top-Up Center', url: 'https://sdk.hoyoverse.com/payment/genshin/index.html', packageLabel: 'Gói nạp HoYoverse' }
+};
 
 const helpContent: Record<Lang, Record<HelpSection, { title: string; items: string[] }>> = {
   vi: {
@@ -357,7 +364,7 @@ export default function App() {
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [status, setStatus] = useState<string>(translations.vi.initialStatus);
   const [error, setError] = useState('');
-  const [rateForm, setRateForm] = useState({ gameCode: 'FREE_FIRE', currencyCode: 'KC', amountVnd: '100000', currencyAmount: '', bonusAmount: '0', sourceName: 'Manual verified rate', note: '' });
+  const [rateForm, setRateForm] = useState({ currencyAmount: '', bonusAmount: '0' });
   const [adminKey, setAdminKey] = useState('');
   const [siteForm, setSiteForm] = useState({ backgroundUrl: '/wolf-bg.jpg', musicUrl: '', musicTitle: '', musicEnabled: false, volume: '0.45' });
   const [requestForm, setRequestForm] = useState({ requesterName: '', songTitle: '', musicUrl: '', note: '' });
@@ -375,6 +382,8 @@ export default function App() {
   const youtubeEmbedUrl = mediaKind === 'youtube' ? getYouTubeEmbedUrl(mediaUrl) : '';
   const mediaButtonLabel = mediaFrameOpen || musicPlaying ? tr.pauseMusic : tr.playMusic;
   const volumeDisabled = mediaKind !== 'directAudio';
+  const selectedGameSource = officialGameSources[draft.game.gameCode] ?? officialGameSources.FREE_FIRE;
+  const selectedGamePair = gamePairs.find((pair) => pair.gameCode === draft.game.gameCode && pair.currencyCode === draft.game.currencyCode) ?? gamePairs[0];
 
   const tabs: Array<{ id: Tab; label: string; icon: string }> = [
     { id: 'basic', label: tr.tabs.basic, icon: '▣' },
@@ -413,6 +422,14 @@ export default function App() {
     }, 700);
     return () => window.clearTimeout(handle);
   }, [activeTab, draft, userId, sessionId, canSave, lang]);
+
+  useEffect(() => {
+    if (activeTab !== 'game' || !canSave || !draft.game.amountVnd.trim()) return;
+    const handle = window.setTimeout(() => {
+      runGame().catch((err: Error) => setError(err.message));
+    }, 650);
+    return () => window.clearTimeout(handle);
+  }, [activeTab, canSave, draft.game.gameCode, draft.game.currencyCode, draft.game.amountVnd]);
 
   useEffect(() => {
     if (!audioRef.current || mediaKind !== 'directAudio') return;
@@ -493,8 +510,24 @@ export default function App() {
 
   async function addRate() {
     setError('');
-    await api.addGameRate(rateForm);
-    setStatus(lang === 'vi' ? 'Đã lưu tỷ giá game thật vào cơ sở dữ liệu.' : lang === 'en' ? 'Saved the real game rate to the database.' : '已将真实游戏汇率保存到数据库。');
+    if (!adminKey.trim()) {
+      throw new Error(lang === 'vi' ? 'Cần key quản trị để cập nhật tỷ giá chính thức.' : lang === 'en' ? 'Admin key is required to update official rates.' : '需要管理密钥才能更新官方汇率。');
+    }
+    if (!draft.game.amountVnd.trim() || !rateForm.currencyAmount.trim()) {
+      throw new Error(lang === 'vi' ? 'Cần nhập mệnh giá VND và số lượng nhận từ nguồn chính thức.' : lang === 'en' ? 'Enter VND package amount and received amount from the official source.' : '请输入 VND 套餐金额和官方来源显示的获得数量。');
+    }
+
+    await api.addGameRate({
+      adminKey,
+      gameCode: draft.game.gameCode,
+      currencyCode: draft.game.currencyCode,
+      amountVnd: draft.game.amountVnd,
+      currencyAmount: rateForm.currencyAmount,
+      bonusAmount: rateForm.bonusAmount || '0',
+      sourceName: selectedGameSource.name,
+      note: `Official source: ${selectedGameSource.url}`
+    });
+    setStatus(lang === 'vi' ? 'Đã lưu tỷ giá chính thức vào cơ sở dữ liệu.' : lang === 'en' ? 'Saved the official rate to the database.' : '已将官方汇率保存到数据库。');
     await refreshRates();
   }
 
@@ -822,30 +855,46 @@ export default function App() {
             <div className="formGrid">
               <h2>🎮 {tr.gameTitle}</h2>
               <p className="subtle">{tr.gameHint}</p>
+
               <label>{tr.gameTitle}<select value={`${draft.game.gameCode}/${draft.game.currencyCode}`} onChange={(e) => {
                 const [gameCode, currencyCode] = e.target.value.split('/');
                 setDraft({ ...draft, game: { ...draft.game, gameCode, currencyCode } });
               }}>
                 {gamePairs.map((pair) => <option key={pair.label} value={`${pair.gameCode}/${pair.currencyCode}`}>{pair.label}</option>)}
               </select></label>
-              <label>{tr.amountVnd}<input value={draft.game.amountVnd} onChange={(e) => setDraft({ ...draft, game: { ...draft.game, amountVnd: e.target.value } })} placeholder="VND" /></label>
+
+              <label>{tr.amountVnd}<input value={draft.game.amountVnd} onChange={(e) => setDraft({ ...draft, game: { ...draft.game, amountVnd: e.target.value } })} placeholder="VND" inputMode="decimal" /></label>
               <button className="primary gradientAction" onClick={() => guarded(runGame)}>⚡ {tr.convert}</button>
 
-              <h3>{tr.addRealRate}</h3>
-              <div className="miniGrid">
-                <input value={rateForm.gameCode} onChange={(e) => setRateForm({ ...rateForm, gameCode: e.target.value })} placeholder="FREE_FIRE" />
-                <input value={rateForm.currencyCode} onChange={(e) => setRateForm({ ...rateForm, currencyCode: e.target.value })} placeholder="KC" />
-                <input value={rateForm.amountVnd} onChange={(e) => setRateForm({ ...rateForm, amountVnd: e.target.value })} placeholder="VND" />
-                <input value={rateForm.currencyAmount} onChange={(e) => setRateForm({ ...rateForm, currencyAmount: e.target.value })} placeholder={tr.currency} />
-                <input value={rateForm.bonusAmount} onChange={(e) => setRateForm({ ...rateForm, bonusAmount: e.target.value })} placeholder={tr.bonus} />
-                <input value={rateForm.sourceName} onChange={(e) => setRateForm({ ...rateForm, sourceName: e.target.value })} placeholder={tr.source} />
+              <div className="officialRatePanel">
+                <div className="officialRateHeader">
+                  <div>
+                    <h3>{tr.addRealRate}</h3>
+                    <p className="subtle">{selectedGamePair.label} • {selectedGameSource.packageLabel}</p>
+                  </div>
+                  <a className="cyanButton officialSourceLink" href={selectedGameSource.url} target="_blank" rel="noreferrer">↗ {tr.source}</a>
+                </div>
+
+                <div className="readOnlyRateGrid">
+                  <span><b>Game</b>{draft.game.gameCode}</span>
+                  <span><b>Currency</b>{draft.game.currencyCode}</span>
+                  <span><b>VND</b>{draft.game.amountVnd || '—'}</span>
+                  <span><b>{tr.source}</b>{selectedGameSource.name}</span>
+                </div>
+
+                <div className="miniGrid officialRateInputs">
+                  <label>{tr.adminKey}<input type="password" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} placeholder="••••••••" /></label>
+                  <label>{tr.currency}<input value={rateForm.currencyAmount} onChange={(e) => setRateForm({ ...rateForm, currencyAmount: e.target.value })} placeholder={draft.game.currencyCode} inputMode="decimal" /></label>
+                  <label>{tr.bonus}<input value={rateForm.bonusAmount} onChange={(e) => setRateForm({ ...rateForm, bonusAmount: e.target.value })} placeholder="0" inputMode="decimal" /></label>
+                </div>
+
+                <div className="twoButtons">
+                  <button className="primary hotPink" onClick={() => unguarded(addRate)}>🔐 {tr.saveRate}</button>
+                  <button className="cyanButton" onClick={() => guarded(refreshRates)}>{tr.loadRates}</button>
+                </div>
               </div>
-              <input value={rateForm.note} onChange={(e) => setRateForm({ ...rateForm, note: e.target.value })} placeholder={tr.verifiedNote} />
-              <div className="twoButtons">
-                <button onClick={() => guarded(addRate)}>{tr.saveRate}</button>
-                <button onClick={() => guarded(refreshRates)}>{tr.loadRates}</button>
-              </div>
-              <div className="rateList">{rates.map((rate) => <span key={rate.id}>{rate.game_code}/{rate.currency_code}: {rate.amount_vnd}đ → {rate.currency_amount}+{rate.bonus_amount}</span>)}</div>
+
+              <div className="rateList">{rates.map((rate) => <span key={rate.id}>{rate.game_code}/{rate.currency_code}: {rate.amount_vnd}đ → {rate.currency_amount}+{rate.bonus_amount} • {rate.source_name}</span>)}</div>
             </div>
           )}
 
