@@ -318,3 +318,168 @@ footer {
   .twoColumns, .miniGrid { grid-template-columns: 1fr; }
   h1 { font-size: clamp(2.4rem, 15vw, 4rem); }
 }
+
+.dynamicBackground {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(180deg, rgba(3, 4, 13, .24), rgba(3, 4, 13, .9) 72%, #03040d 100%),
+    var(--ume-bg-image) center top / cover fixed no-repeat;
+}
+
+.appShell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 6%, rgba(255, 57, 223, .16), transparent 23rem),
+    radial-gradient(circle at 82% 12%, rgba(37, 231, 255, .18), transparent 28rem),
+    linear-gradient(90deg, rgba(10, 0, 28, .42), transparent 44%, rgba(0, 30, 42, .36));
+}
+
+.topTools {
+  min-width: 230px;
+  display: grid;
+  gap: .75rem;
+  justify-items: stretch;
+}
+
+.languageSelectLabel {
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-weight: 950;
+  color: #dffbff;
+}
+
+.languageSelect {
+  margin-top: .35rem;
+  min-height: 48px;
+  border-color: rgba(255, 57, 223, .68);
+  background: rgba(12, 6, 30, .86);
+  box-shadow: 0 0 22px rgba(255, 57, 223, .18), inset 0 0 18px rgba(37, 231, 255, .08);
+  cursor: pointer;
+}
+
+.musicToggle:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.musicMeta {
+  color: #bdfaff;
+  border: 1px solid rgba(37, 231, 255, .25);
+  background: rgba(5, 10, 28, .58);
+  border-radius: 14px;
+  padding: .7rem .85rem;
+  font-weight: 800;
+  word-break: break-word;
+}
+
+.cleanConnection .connectionIntro h2 {
+  margin-bottom: 0;
+}
+
+.mediaPanel {
+  border: 1px solid rgba(155, 92, 255, .3);
+  background: rgba(3, 6, 20, .44);
+  border-radius: 22px;
+  padding: 1rem;
+  display: grid;
+  gap: .75rem;
+  box-shadow: inset 0 0 22px rgba(37, 231, 255, .045);
+}
+
+.mediaPanel h3 {
+  margin-top: 0;
+}
+
+.musicControls {
+  display: grid;
+  grid-template-columns: auto auto minmax(160px, 1fr) auto;
+  gap: .7rem;
+  align-items: center;
+}
+
+.musicControls input[type='range'] {
+  padding: 0;
+  accent-color: var(--pink);
+  box-shadow: none;
+}
+
+.checkRow {
+  display: flex;
+  grid-template-columns: unset;
+  align-items: center;
+  gap: .7rem;
+  color: #e6e9ff;
+}
+
+.checkRow input {
+  width: auto;
+  transform: scale(1.15);
+  accent-color: var(--pink);
+}
+
+.approvalTable {
+  display: grid;
+  gap: .75rem;
+  max-height: 520px;
+  overflow: auto;
+  padding-right: .25rem;
+}
+
+.approvalRow {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(280px, auto);
+  align-items: center;
+  gap: .75rem;
+  border: 1px solid rgba(178, 190, 255, .17);
+  background: rgba(255, 255, 255, .045);
+  border-radius: 18px;
+  padding: .8rem;
+}
+
+.approvalRow strong,
+.approvalRow span {
+  display: block;
+}
+
+.approvalRow strong { color: #fff; }
+.approvalRow span { color: #bbc5ee; font-size: .9rem; }
+.approvalRow.pending { border-color: rgba(250, 204, 21, .35); }
+.approvalRow.approved { border-color: rgba(54, 255, 145, .35); }
+.approvalRow.rejected { border-color: rgba(248, 113, 113, .35); opacity: .78; }
+
+.approvalRow a {
+  color: #9df7ff;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.approvalActions {
+  display: flex;
+  gap: .45rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.approvalActions button {
+  padding: .55rem .7rem;
+  border-radius: 12px;
+  font-size: .86rem;
+}
+
+@media (max-width: 1120px) {
+  .topTools { width: min(100%, 360px); justify-self: start; }
+  .approvalRow { grid-template-columns: 1fr; }
+  .approvalActions { justify-content: flex-start; }
+}
+
+@media (max-width: 680px) {
+  .musicControls { grid-template-columns: 1fr 1fr; }
+  .musicControls input[type='range'] { grid-column: 1 / -1; }
+}
