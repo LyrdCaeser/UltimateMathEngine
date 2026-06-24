@@ -33,9 +33,11 @@ app.use('/api', gameRatesRouter);
 app.use('/api/settings', settingsRouter);
 
 const distPath = join(process.cwd(), 'dist');
+
 if (existsSync(distPath)) {
   app.use(express.static(distPath));
-  app.get('*', (_req, res) => {
+
+  app.get(/.*/, (_req, res) => {
     res.sendFile(join(distPath, 'index.html'));
   });
 }
