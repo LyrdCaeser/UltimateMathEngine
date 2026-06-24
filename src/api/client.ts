@@ -25,6 +25,27 @@ export type HistoryItem = {
   created_at: string;
 };
 
+export type SiteSettings = {
+  id: string;
+  background_url: string;
+  music_url: string;
+  music_title: string;
+  music_enabled: boolean;
+  volume: string;
+  updated_at: string;
+};
+
+export type MusicRequest = {
+  id: string;
+  requester_name: string;
+  song_title: string;
+  music_url: string;
+  note: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  reviewed_at: string | null;
+};
+
 type RequestOptions = {
   method?: string;
   body?: unknown;
@@ -65,5 +86,10 @@ export const api = {
   getGameRates: () => request<{ rates: GameRate[] }>('/api/game-rates'),
   addGameRate: (body: unknown) => request<{ rate: GameRate }>('/api/game-rates', { method: 'POST', body }),
   convertGameCurrency: (body: unknown) => request<{ resultAmount: string; method: string; precisionNote: string; usedRates: GameRate[] }>('/api/convert/game', { method: 'POST', body }),
-  saveSettings: (userId: string, body: unknown) => request<{ settings: unknown }>(`/api/settings/${userId}`, { method: 'PATCH', body })
+  saveSettings: (userId: string, body: unknown) => request<{ settings: unknown }>(`/api/settings/${userId}`, { method: 'PATCH', body }),
+  getSiteSettings: () => request<{ settings: SiteSettings }>('/api/site-settings'),
+  updateSiteSettings: (body: unknown) => request<{ settings: SiteSettings }>('/api/site-settings/admin', { method: 'PATCH', body }),
+  createMusicRequest: (body: unknown) => request<{ request: MusicRequest }>('/api/music-requests', { method: 'POST', body }),
+  getMusicRequests: (adminKey: string, status = 'all') => request<{ requests: MusicRequest[] }>(`/api/music-requests/admin?adminKey=${encodeURIComponent(adminKey)}&status=${encodeURIComponent(status)}`),
+  reviewMusicRequest: (id: string, body: unknown) => request<{ request: MusicRequest }>(`/api/music-requests/${id}/admin`, { method: 'PATCH', body })
 };
